@@ -30,8 +30,8 @@ docker_environment:
   - key: MAILGUN_API_KEY
     value: "{{mailgun_api_key}}"
   - key: MAILGUN_SENDER_DOMAIN
-    value: {{mailgun_sender_domain}}
+    value: "{{mailgun_sender_domain}}"
   - key: WEBHOOK_AUTHORIZATION
-    value: "{{mailgun_webhook_authorization}}""
+    value: "{{mailgun_webhook_authorization}}"
   - key: EMAIL_BACKEND
     value: anymail.backends.mailgun.MailgunBackend
