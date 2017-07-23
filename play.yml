@@ -1,0 +1,69 @@
+---
+- hosts: service_postgres_master
+  vars:
+    - postgres_db_name: "{{organization}}_{{service}}"
+    - postgres_db_user: "{{organization}}_{{service}}"
+    - postgres_db_password: "{{postgres_passwords[service]}}"
+
+  roles:
+    - { role: postgresdb, tags: ['postgres'] }
+
+- hosts: localhost
+  vars:
+    dns_tld: "{{canonical_tld}}"
+    dns_subdomains:
+      - subdomain: "{{service}}"
+        ip: "{{swarm_ip}}"
+    kong_api:
+      name: "{{service}}"
+      upstream_url: "http://{{service}}:80"
+      hosts: "{{service}}.{{canonical_tld}}"
+    kong_plugins: []
+    # kong_plugins:
+    # - name: cors
+    #   config: {}
+    # - name: rate-limiting
+    #   config:
+    #     config.second: 10
+    #     config.hour: 10000
+    # status:
+    WebsiteName: "{{entity_name}}"
+    WebsiteURL: "https://{{service}}.{{canonical_tld}}"
+    CheckRate: 300
+    TestTags: ''
+  roles:
+    - role: dns
+      tags: [dns]
+    - role: kongapi
+      tags: [kong]
+    - role: status
+      tags: [status]
+
+- hosts: server_swarm
+  vars:
+    # docker app setup:
+    # see: roles/djangoapp/defaults/main.yml for more:
+    docker_org: "{{organization}}"
+    docker_image: "{{service}}"
+    docker_service: "{{service}}"
+    docker_command: "sh /code/run.sh"
+
+  pre_tasks:
+    - debug: var=docker_environment
+      tags:
+        - deploy
+        - debug
+      with_items: docker_environment
+
+  roles:
+    - role: djangoapp
+      tags: [app, django, deploy]
+
+  post_tasks:
+    - name: Tell slack
+      slack:
+        token: '{{slack_token}}'
+        msg: 'Deployed: {{docker_service}} using image: {{docker_org}}/{{docker_image}}:{{docker_version}}. See: {{service}}.{{canonical_tld}}'
+      delegate_to: localhost
+      when: slack_token is defined
+      tags: deploy

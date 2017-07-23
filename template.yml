@@ -1,0 +1,24 @@
+---
+version: '3'
+
+services:
+  {{docker_service}}:
+    image: {{docker_org}}/{{docker_image}}:{{docker_version}}
+    command: {{docker_command}}
+    networks:
+      - kong
+    deploy:
+        replicas: {{docker_replicas}}
+        update_config:
+          parallelism: {{docker_parallelism}}
+          delay: {{docker_delay}}
+{% if docker_environment|length > 0 %}
+    environment:
+{% for var in docker_environment %}
+      - {{var.key}}={{var.value}}
+{% endfor %}
+{% endif %}
+networks:
+  kong:
+    external:
+      name: infrastructure_internal

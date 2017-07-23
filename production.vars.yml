@@ -1,0 +1,37 @@
+docker_environment:
+  - key: DEBUG
+    value: False
+  - key: DATABASE_NAME
+    value: "{{organization}}_{{service}}"
+  - key: DATABASE_USER
+    value: "{{organization}}_{{service}}"
+  - key: DATABASE_PASSWORD
+    value: "{{postgres_passwords[service]}}"
+  - key: DATABASE_HOST
+    value: "{{postgres_db_host}}"
+  - key: ALLOWED_HOSTS
+    value: "{{docker_service}},{{service}}.{{canonical_tld}}"
+  - key: AWS_STORAGE_BUCKET_NAME
+    value: media-appointmentguru
+  - key: AWS_ACCESS_KEY_ID
+    value: "{{aws_access_key}}"
+  - key: AWS_SECRET_ACCESS_KEY
+    value: "{{aws_secret_key}}"
+  - key: TWILLIO_SID
+    value: AC017ac887b3e1bf6e48a9b8c360d707af
+  - key: TWILLIO_AUTH_TOKEN
+    value: fbaf1e3b594177bc3eaba69d61735a0a
+  - key: TWILLIO_PHONE_NUMBER
+    value: +12019044071
+  - key: SMS_BACKEND
+    value: services.backends.twillio.TwillioBackend
+  - key: SANDBOX_SMS
+    value: +27832566533
+  - key: MAILGUN_API_KEY
+    value: key-19a181a760a73b89bbb10d691c5b1202
+  - key: MAILGUN_SENDER_DOMAIN
+    value: appointmentguru.co
+  - key: WEBHOOK_AUTHORIZATION
+    value: fQEi7N2RrrGI7DGy:kkqj1yT7KO9OBDqr
+  - key: EMAIL_BACKEND
+    value: anymail.backends.mailgun.MailgunBackend
