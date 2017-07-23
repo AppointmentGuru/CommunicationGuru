@@ -18,9 +18,9 @@ docker_environment:
   - key: AWS_SECRET_ACCESS_KEY
     value: "{{aws_secret_key}}"
   - key: TWILLIO_SID
-    value: AC017ac887b3e1bf6e48a9b8c360d707af
+    value: "{{twillio_sid}}"
   - key: TWILLIO_AUTH_TOKEN
-    value: fbaf1e3b594177bc3eaba69d61735a0a
+    value: "{{twillio_auth_token}}"
   - key: TWILLIO_PHONE_NUMBER
     value: +12019044071
   - key: SMS_BACKEND
@@ -28,10 +28,10 @@ docker_environment:
   - key: SANDBOX_SMS
     value: +27832566533
   - key: MAILGUN_API_KEY
-    value: key-19a181a760a73b89bbb10d691c5b1202
+    value: "{{mailgun_api_key}}"
   - key: MAILGUN_SENDER_DOMAIN
-    value: appointmentguru.co
+    value: {{mailgun_sender_domain}}
   - key: WEBHOOK_AUTHORIZATION
-    value: fQEi7N2RrrGI7DGy:kkqj1yT7KO9OBDqr
+    value: "{{mailgun_webhook_authorization}}""
   - key: EMAIL_BACKEND
     value: anymail.backends.mailgun.MailgunBackend

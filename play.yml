@@ -48,13 +48,6 @@
     docker_service: "{{service}}"
     docker_command: "sh /code/run.sh"
 
-  pre_tasks:
-    - debug: var=docker_environment
-      tags:
-        - deploy
-        - debug
-      with_items: docker_environment
-
   roles:
     - role: djangoapp
       tags: [app, django, deploy]
