@@ -35,3 +35,5 @@ docker_environment:
     value: "{{mailgun_webhook_authorization}}"
   - key: EMAIL_BACKEND
     value: anymail.backends.mailgun.MailgunBackend
+  - key: SLACK_TOKEN
+    value: "{{slack_api_token}}"

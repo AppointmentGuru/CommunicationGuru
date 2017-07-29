@@ -19,3 +19,4 @@ responses
 
 coverage
 codacy-coverage
+
