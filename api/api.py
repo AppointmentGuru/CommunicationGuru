@@ -12,7 +12,7 @@ def slack_webhook(request):
     slack_client = SlackClient(token)
 
     channel = 'bot_factory'
-
+    print (request.data)
     message = """
 Data:
 ```{}```""".format(json.dumps(request.data, indent=2))

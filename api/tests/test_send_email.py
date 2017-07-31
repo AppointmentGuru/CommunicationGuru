@@ -22,7 +22,6 @@ class EmailBackendTestCase(TestCase):
 
     def test_it_sends_an_email(self):
 
-        self.message.send()
         assert len(mail.outbox) == 1, \
             'Expected 1 message to be in outbox. There where: {}'.format(len(mail.outbox))
 
