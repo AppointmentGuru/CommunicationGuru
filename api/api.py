@@ -5,6 +5,11 @@ from slackclient import SlackClient
 import os, json
 
 @csrf_exempt
+@decorators.api_view(['GET'])
+def health(request):
+    return HttpResponse('ok')
+
+@csrf_exempt
 @decorators.api_view(['POST', 'GET'])
 def slack_webhook(request):
 

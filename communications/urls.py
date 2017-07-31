@@ -19,5 +19,6 @@ from api import api
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^incoming/slack/$', api.slack_webhook, name='slack_webhook')
+    url(r'^incoming/slack/$', api.slack_webhook, name='slack_webhook'),
+    url(r'^$', api.health, name='health'),
 ]
