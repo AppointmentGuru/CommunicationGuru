@@ -157,3 +157,6 @@ ANYMAIL = {
     'WEBHOOK_AUTHORIZATION': os.environ.get('WEBHOOK_AUTHORIZATION'),
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
+
+from .custom_settings import *
+

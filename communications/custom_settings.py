@@ -32,3 +32,23 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+SANDBOX_MODE = os.environ.get('SANDBOX_MODE', True)
+SANDBOX_SMS = os.environ.get('SANDBOX_SMS')
+# SMS / TWILLIO
+TWILLIO_SID = os.environ.get('TWILLIO_SID')
+TWILLIO_AUTH_TOKEN = os.environ.get('TWILLIO_AUTH_TOKEN')
+TWILLIO_PHONE_NUMBER = os.environ.get('TWILLIO_PHONE_NUMBER')
+
+SMS_BACKEND = os.environ.get('SMS_BACKEND')
+
+# EMAIL / MailGun
+
+ANYMAIL = {
+    # (exact settings here depend on your ESP...)
+    "MAILGUN_API_KEY": os.environ.get('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": os.environ.get('MAILGUN_SENDER_DOMAIN'),
+    'WEBHOOK_AUTHORIZATION': os.environ.get('WEBHOOK_AUTHORIZATION'),
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
+
