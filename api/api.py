@@ -1,4 +1,4 @@
-from rest_framework import decorators
+from rest_framework import decorators, permissions
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from slackclient import SlackClient
@@ -11,6 +11,7 @@ def health(request):
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
+@decorators.permission_classes((permissions.AllowAny, ))
 def slack_webhook(request):
 
     token = os.environ.get('SLACK_TOKEN')

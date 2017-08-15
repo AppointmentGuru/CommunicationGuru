@@ -27,7 +27,7 @@ if db_password:
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
+        # 'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
