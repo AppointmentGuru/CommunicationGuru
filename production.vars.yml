@@ -25,6 +25,8 @@ docker_environment:
     value: +12019044071
   - key: SMS_BACKEND
     value: services.backends.twillio.TwillioBackend
+  - key: SANDBOX_MODE
+    value: False
   - key: SANDBOX_SMS
     value: +27832566533
   - key: MAILGUN_API_KEY

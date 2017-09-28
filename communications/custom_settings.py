@@ -33,7 +33,7 @@ REST_FRAMEWORK = {
     )
 }
 
-SANDBOX_MODE = os.environ.get('SANDBOX_MODE', True)
+SANDBOX_MODE = os.environ.get('SANDBOX_MODE', 'True') == 'True'
 SANDBOX_SMS = os.environ.get('SANDBOX_SMS')
 # SMS / TWILLIO
 TWILLIO_SID = os.environ.get('TWILLIO_SID')
