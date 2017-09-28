@@ -70,7 +70,7 @@ class Communication(models.Model):
 
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
-    backend_result = JSONField(default={})
+    backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
 
 
     def apply_template(self, with_save=True):
@@ -94,9 +94,7 @@ class Communication(models.Model):
             sms = SMS()
             result = sms.send(
                 self.short_message,
-                self.recipient_phone_number
-                # StatusCallback='https://communicationguru.appointmentguru.co/incoming/slack/'
-            )
+                self.recipient_phone_number)
             sms.save(self, result)
             return result
         if self.preferred_transport == 'email':

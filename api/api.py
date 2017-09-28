@@ -5,6 +5,7 @@ from slackclient import SlackClient
 
 from .models import Communication
 from services.email import Email
+from services.sms import SMS
 
 import os, json
 
@@ -26,7 +27,8 @@ def slack_webhook(request):
 
     if (request.data.get('X-Mailgun-Sid') is not None):
         Email(None).status_update(request.data)
-
+    if (request.data.get('SmsSid') is not None):
+        SMS().status_update(request.data)
     message = """
 Data:
 ```{}```""".format(json.dumps(request.data, indent=2))

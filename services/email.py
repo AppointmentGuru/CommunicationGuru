@@ -37,11 +37,12 @@ class Email:
         status = CommunicationStatus()
 
         message_id = payload.get('Message-Id')
-        try:
-            comm = Communication.objects.get(backend_message_id=message_id)
-            status.communication = comm
-        except Communication.DoesNotExist:
-            pass
+        if message_id is not None:
+            try:
+                comm = Communication.objects.get(backend_message_id=message_id)
+                status.communication = comm
+            except Communication.DoesNotExist:
+                pass
         status.status = payload.get('event')
         status.save()
 

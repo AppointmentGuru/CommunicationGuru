@@ -39,7 +39,7 @@ SANDBOX_SMS = os.environ.get('SANDBOX_SMS')
 TWILLIO_SID = os.environ.get('TWILLIO_SID')
 TWILLIO_AUTH_TOKEN = os.environ.get('TWILLIO_AUTH_TOKEN')
 TWILLIO_PHONE_NUMBER = os.environ.get('TWILLIO_PHONE_NUMBER')
-
+TWILLIO_STATUS_CALLBACK = "https://communicationguru.appointmentguru.co/incoming/slack/"
 SMS_BACKEND = os.environ.get('SMS_BACKEND')
 
 # EMAIL / MailGun

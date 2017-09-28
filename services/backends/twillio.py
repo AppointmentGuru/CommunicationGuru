@@ -1,5 +1,6 @@
 from twilio.rest import TwilioRestClient
 from django.conf import settings
+import six, json
 
 class TwillioBackend:
 
@@ -17,7 +18,7 @@ class TwillioBackend:
             body=message,
             to=to,
             from_=self.from_number,
-            StatusCallback='https://communicationguru.appointmentguru.co/incoming/slack/')
+            StatusCallback=settings.TWILLIO_STATUS_CALLBACK)
 
     def fetch(self, id):
         '''
@@ -31,7 +32,42 @@ class TwillioBackend:
         status.status = result.status
         status.communication = communication
 
+        communication.backend_used = settings.SMS_BACKEND
         communication.backend_message_id = result.sid
         communication.save()
+
+        #save raw response:
+        parsed_data = {}
+        excluded_fields = ['parent', 'timeout', 'media_list', 'date_created', 'date_updated']
+        included_fields = set(result.__dict__.keys()).difference(set(excluded_fields))
+
+        for key in included_fields:
+            parsed_data[key] = result.__dict__.get(key)
+        communication.raw_result = parsed_data
+        communication.save()
+
+    def status_update(self, payload):
+        ''' TODO: standardize this'''
+
+        # normalize:
+        if isinstance(payload, six.string_types):
+            payload = json.loads(payload)
+
+        from api.models import CommunicationStatus, Communication
+        from api.models import CommunicationStatus
+        status = CommunicationStatus()
+
+        message_id = payload.get('SmsSid', None)
+        if message_id is not None:
+            try:
+                comm = Communication.objects.get(backend_message_id=message_id)
+                status.communication = comm
+            except Communication.DoesNotExist:
+                pass
+        status.status = payload.get('MessageStatus')
         status.save()
+
+        status.raw_result = payload
+        status.save()
+        return status
 
