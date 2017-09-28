@@ -26,7 +26,7 @@ def slack_webhook(request):
     channel = 'bot_factory'
     print(request.data)
 
-    if request.data.get('X-Mailgun-Sid') is not None\
+    if request.data.get('X-Mailgun-Sid') is not None:
         Email(None).status_update(request.data)
     if request.data.get('message-id') is not None:
         # normalize mailgun message ids .. sigh
