@@ -12,11 +12,11 @@ class TwillioBackend:
         self.from_number = settings.TWILLIO_PHONE_NUMBER
         # todo: backends:
 
-    def send(self, message, to):
+    def send(self, message, to_number):
 
         return self.client.messages.create(
             body=message,
-            to=to,
+            to=to_number,
             from_=self.from_number,
             StatusCallback=settings.TWILLIO_STATUS_CALLBACK)
 
