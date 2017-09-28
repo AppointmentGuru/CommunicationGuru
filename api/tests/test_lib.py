@@ -18,5 +18,5 @@ class CommunicationGuruLibTestCase(TestCase):
         random_string = str(random.random())
         subject = 'test: {}'.format(random_string)
         result = self.comms.send_email(['info@38.co.za'], subject, 'this is a test', from_email='support@appointmentguru.co')
-        import ipdb;ipdb.set_trace()
+
 

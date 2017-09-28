@@ -19,7 +19,6 @@ class ModelAppliesTemplateTestCase(TestCase):
         self.tmplt = CommunicationTemplate.objects.create(**data)
 
         data = {
-            "sender": self.user,
             "template": self.tmplt,
             "context": {"first_name": "Joe", "foo": "bar"}
         }

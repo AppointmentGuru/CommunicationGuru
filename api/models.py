@@ -38,6 +38,9 @@ class CommunicationTemplate(models.Model):
 
 class Communication(models.Model):
 
+    def __str__(self):
+        return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
+
     owner = models.CharField(max_length=100, blank=True, null=True)
     object_ids = ArrayField(models.CharField(max_length=100), default=[], blank=True, null=True)
 

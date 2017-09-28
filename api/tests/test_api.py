@@ -7,6 +7,7 @@ class WebHookTestCase(TestCase):
     def test_slack_webhook_payload(self):
 
         data = {
+            "X-Mailgun-Sid": '123',
             "foo": "bar",
             "baz": "bus",
             "event": "delivered"
