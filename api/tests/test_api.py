@@ -31,4 +31,4 @@ class IncomingTwillioSMSWebHookTestCase(TestCase):
         assert self.result.status_code == 200
 
     def test_incoming_twillio_sms_result(self):
-        assert CommunicationStatus.objects.count() === 1
+        assert CommunicationStatus.objects.count() == 1
