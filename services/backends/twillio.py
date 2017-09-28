@@ -14,6 +14,9 @@ class TwillioBackend:
 
     def send(self, message, to_number):
 
+        if not to_number.startswith('+'):
+            to_number = '+{}'.format(to_number)
+
         return self.client.messages.create(
             body=message,
             to=to_number,
