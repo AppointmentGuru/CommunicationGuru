@@ -21,6 +21,8 @@ class WebHookTestCase(TestCase):
 
         result = self.client.post('/incoming/slack/', json.dumps(MAILGUN_STATUS_UPDATE), content_type='application/json')
         assert result.status_code == 200
+        assert CommunicationStatus.objects.count() == 1,\
+            'Expect it to create a communication status'
 
 
 class IncomingTwillioSMSWebHookTestCase(TestCase):
