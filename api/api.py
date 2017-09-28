@@ -3,7 +3,8 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from slackclient import SlackClient
 
-from .models import Communication
+from .models import Communication, CommunicationStatus
+from .mixins import MultiSerializerMixin
 from services.email import Email
 from services.sms import SMS
 
@@ -26,7 +27,10 @@ def slack_webhook(request):
     print(request.data)
 
     if request.data.get('X-Mailgun-Sid') is not None\
-        or request.data.get('message-id') is not None:
+        Email(None).status_update(request.data)
+    if request.data.get('message-id') is not None:
+        # normalize mailgun message ids .. sigh
+        request.data['X-Mailgun-Sid'] = "<{}>".format(request.data.get('message-id'))
         Email(None).status_update(request.data)
     if (request.data.get('SmsSid') is not None):
         SMS().status_update(request.data)
@@ -46,16 +50,33 @@ Data:
 def incoming_email(request):
     pass
 
+class CommunicationStatusSerializer(serializers.ModelSerializer):
+    order_by = ('created_date')
+    class Meta:
+        model = CommunicationStatus
+        fields = '__all__'
+
 # Serializers define the API representation.
-class CommunicationSerializer(serializers.HyperlinkedModelSerializer):
+class CommunicationListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Communication
         fields = '__all__'
 
-                        # ViewSets define the view behavior.
-class CommunicationViewSet(viewsets.ModelViewSet):
+class CommunicationDetailSerializer(serializers.ModelSerializer):
+    communicationstatus = CommunicationStatusSerializer(read_only=True, many=True)
+    class Meta:
+        model = Communication
+        fields = '__all__'
+
+
+class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
     queryset = Communication.objects.all()
-    serializer_class = CommunicationSerializer
+
+    default_serializer_class = CommunicationListSerializer
+    serializer_map = {
+        'retrieve': CommunicationDetailSerializer,
+        'list': CommunicationListSerializer
+    }
 
 router = routers.DefaultRouter()
 router.register(r'communications', CommunicationViewSet)
