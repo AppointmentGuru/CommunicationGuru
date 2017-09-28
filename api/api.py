@@ -31,7 +31,7 @@ def slack_webhook(request):
     if request.data.get('message-id') is not None:
         # normalize mailgun message ids .. sigh
         data = request.data.copy()
-        data['X-Mailgun-Sid'] = "<{}>".format(data.get('message-id'))
+        data['Message-Id'] = "<{}>".format(data.get('message-id'))
         Email(None).status_update(data)
     if (request.data.get('SmsSid') is not None):
         SMS().status_update(request.data)
