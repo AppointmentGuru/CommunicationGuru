@@ -18,3 +18,5 @@ class SMS:
 
 		return self.sms.send(message, to)
 
+	def save(self, communication, result):
+		self.sms.save(communication, result)

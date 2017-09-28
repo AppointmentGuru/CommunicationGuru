@@ -25,3 +25,13 @@ class TwillioBackend:
         '''
         return client.messages.get(id).__dict__
 
+    def save(self, communication, result):
+        from api.models import CommunicationStatus
+        status = CommunicationStatus()
+        status.status = result.status
+        status.communication = communication
+
+        communication.backend_message_id = result.sid
+        communication.save()
+        status.save()
+

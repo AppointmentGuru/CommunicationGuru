@@ -38,31 +38,37 @@ class CommunicationTemplate(models.Model):
 
 class Communication(models.Model):
 
+    owner = models.CharField(max_length=100, blank=True, null=True)
+    object_ids = ArrayField(models.CharField(max_length=100), default=[], blank=True, null=True)
+
     # the object to which this lineitem is attached
-    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     sender_email = models.EmailField(blank=True, null=True)
 
     preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
 
-    recipient_channel = models.CharField(max_length=255, blank=True, null=True)
-    recipient_id = models.CharField(max_length=255, blank=True, null=True)
-    # make this an arrayfield?
-    recipient_emails = ArrayField(models.EmailField(), blank=True, null=True)
-    recipient_phone_number = PhoneNumberField(blank=True, null=True)
+    recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    recipient_emails = ArrayField(models.EmailField(), blank=True, null=True, db_index=True)
+    recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
     template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
 
-    subject = models.CharField(max_length=255, blank=True, null=True)
+    subject = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     short_message = models.CharField(max_length=144, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
 
     context = JSONField(blank=True, null=True)
 
-    send_date = models.DateTimeField(default=datetime.now)
-    last_sent_date = models.DateTimeField(blank=True, null=True)
-    status = models.CharField(max_length=10, default='N', choices=SEND_STATUSES)
+    send_date = models.DateTimeField(default=datetime.now, db_index=True)
+    last_sent_date = models.DateTimeField(blank=True, null=True, db_index=True)
+    status = models.CharField(max_length=10, default='N', choices=SEND_STATUSES, db_index=True)
 
     created_date = models.DateTimeField(auto_now_add=True, db_index=True)
     modified_date = models.DateTimeField(auto_now=True, db_index=True)
+
+    backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
+    backend_result = JSONField(default={})
+
 
     def apply_template(self, with_save=True):
         '''given a CommunicationTemplate and context: generate subject, short_message and message'''
@@ -79,18 +85,44 @@ class Communication(models.Model):
                 self.save()
             return self
 
-    def send(self, force=False):
+    def send(self):
 
         if self.preferred_transport == 'sms':
-            result = SMS().send(self.short_message, self.recipient_phone_number)
+            sms = SMS()
+            result = sms.send(
+                self.short_message,
+                self.recipient_phone_number
+                # StatusCallback='https://communicationguru.appointmentguru.co/incoming/slack/'
+            )
+            sms.save(self, result)
             return result
         if self.preferred_transport == 'email':
             emailer = Email(self.recipient_emails, self.sender_email)
-            result = emailer.send(
-                        self.subject,
-                        self.message,
-                        self.message
-                    )
-            return result
+            result, message = emailer.send(
+                self.subject,
+                self.message,
+                self.message
+            )
+            print(result)
+            self.backend_used = settings.EMAIL_BACKEND
+            status = message.anymail_status
+            if status is not None:
+                self.backend_message_id = status.message_id
+                if status.esp_response is not None:
+                    self.backend_result = message.anymail_status.esp_response.json()
+            self.save()
+            return (result, message)
+
+
+class CommunicationStatus(models.Model):
+
+    communication = models.ForeignKey(Communication)
+    status = models.CharField(max_length=255, blank=True, null=True, default='sent')
+
+    raw_result = JSONField(blank=True, null=True)
+
+    created_date = models.DateTimeField(auto_now_add=True, db_index=True)
+    modified_date = models.DateTimeField(auto_now=True, db_index=True)
+
 
 from .signals import *

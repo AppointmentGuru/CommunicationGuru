@@ -1,6 +1,6 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
-from .models import Communication
+from .models import Communication, CommunicationStatus
 
 
 @receiver(pre_save, sender=Communication, dispatch_uid="api.communication.communication_pre_save")
@@ -9,4 +9,5 @@ def communication_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Communication, dispatch_uid="api.communication.communication_post_save")
 def communication_post_save(sender, instance, created, **kwargs):
-    instance.send()
+    if created:
+        result = instance.send()

@@ -15,8 +15,7 @@ class EmailBackendTestCase(TestCase):
             "message": "this is the body of the email",
             "recipient_emails": ["jane@soap.com", "jill@soap.com"],
             "sender_email": "joe@soap.com",
-            "preferred_transport": "email",
-            "sender": self.user
+            "preferred_transport": "email"
         }
         self.message = Communication.objects.create(**data)
 

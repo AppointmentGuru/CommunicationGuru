@@ -2,6 +2,7 @@ from django.core import mail
 from django.conf import settings
 from anymail.message import AnymailMessage
 
+
 class Email:
 
     def __init__(self, to, frm=settings.DEFAULT_FROM_EMAIL):
@@ -19,10 +20,27 @@ class Email:
             message.metadata = tags
         message.track_clicks = True
         message.attach_alternative(html, "text/html")
-        return message.send()
+        result =  message.send()
+        return (result, message)
 
     def send_html_email(self, subject, plaintext, html):
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
+
+    def status_update(self, payload):
+        from api.models import CommunicationStatus, Communication
+        from api.models import CommunicationStatus
+        status = CommunicationStatus()
+
+        message_id = payload.get('Message-Id')
+        comm = Communication.objects.get(backend_message_id=message_id)
+        status.communication = comm
+        status.status = payload.get('event')
+        status.save()
+
+        status.raw_result = payload
+        status.save()
+        return status
+
 
 class GoogleActions:
 
