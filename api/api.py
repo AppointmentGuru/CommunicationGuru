@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from slackclient import SlackClient
 
 from .models import Communication
+from services.email import Email
 
 import os, json
 
@@ -21,7 +22,10 @@ def slack_webhook(request):
     slack_client = SlackClient(token)
 
     channel = 'bot_factory'
-    print (request.data)
+    print(request.data)
+
+    Email(None).status_update(request.data)
+
     message = """
 Data:
 ```{}```""".format(json.dumps(request.data, indent=2))

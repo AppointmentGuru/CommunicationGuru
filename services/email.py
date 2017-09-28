@@ -1,7 +1,7 @@
 from django.core import mail
 from django.conf import settings
 from anymail.message import AnymailMessage
-
+import json, six
 
 class Email:
 
@@ -27,13 +27,21 @@ class Email:
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
 
     def status_update(self, payload):
+
+        # normalize:
+        if isinstance(payload, six.string_types):
+            payload = json.loads(payload)
+
         from api.models import CommunicationStatus, Communication
         from api.models import CommunicationStatus
         status = CommunicationStatus()
 
         message_id = payload.get('Message-Id')
-        comm = Communication.objects.get(backend_message_id=message_id)
-        status.communication = comm
+        try:
+            comm = Communication.objects.get(backend_message_id=message_id)
+            status.communication = comm
+        except Communication.DoesNotExist:
+            pass
         status.status = payload.get('event')
         status.save()
 

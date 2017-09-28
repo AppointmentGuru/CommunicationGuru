@@ -116,8 +116,8 @@ class Communication(models.Model):
 
 class CommunicationStatus(models.Model):
 
-    communication = models.ForeignKey(Communication)
-    status = models.CharField(max_length=255, blank=True, null=True, default='sent')
+    communication = models.ForeignKey(Communication, blank=True, null=True, default=None)
+    status = models.CharField(max_length=255, blank=True, null=True, default='queued', db_index=True)
 
     raw_result = JSONField(blank=True, null=True)
 
