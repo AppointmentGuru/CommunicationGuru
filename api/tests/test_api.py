@@ -2,7 +2,7 @@ from django.test import TestCase
 import json
 
 from .datas.payloads import TWILLIO_SMS_SENT
-
+from ..models import CommunicationStatus
 
 class WebHookTestCase(TestCase):
 
