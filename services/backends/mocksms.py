@@ -23,5 +23,8 @@ class MockSMSBackend:
     def __init__(self):
         pass
 
-    def send(self, message, to):
-        return {'message': message, 'to': to}
+    def send(self, message, to_number):
+        return {'message': message, 'to': to_number}
+
+    def save(self, communication, result):
+        return (communication, result)

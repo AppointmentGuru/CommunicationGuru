@@ -117,6 +117,33 @@ class Communication(models.Model):
             self.save()
             return (result, message)
 
+    def send_html_email(self, subject, plaintext, html):
+        return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
+
+    def status_update(self, payload):
+
+        # normalize:
+        if isinstance(payload, six.string_types):
+            payload = json.loads(payload)
+
+        from api.models import CommunicationStatus, Communication
+        from api.models import CommunicationStatus
+        status = CommunicationStatus()
+
+        message_id = payload.get('Message-Id')
+        if message_id is not None:
+            try:
+                comm = Communication.objects.get(backend_message_id=message_id)
+                status.communication = comm
+            except Communication.DoesNotExist:
+                pass
+        status.status = payload.get('event')
+        status.save()
+
+        status.raw_result = payload
+        status.save()
+        return status
+
 
 class CommunicationStatus(models.Model):
 
