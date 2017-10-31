@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 from django.test import TestCase
+from django.core import mail
 from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate
 
@@ -33,3 +34,21 @@ class ModelAppliesTemplateTestCase(TestCase):
 
     def test_it_templates_message(self):
         assert self.comms.message == 'This is a long message: bar'
+
+class ModelSendsEmailWithAttachmentsTestCase(TestCase):
+
+    def setUp(self):
+        data = {
+            "owner": '1',
+            "subject": "Sending webpage as attachment",
+            "message": "Please find attached",
+            "sender_email": "christo@appointmentguru.co",
+            "recipient_emails": ["info@38.co.za", "christo@cretivecolibri.com"],
+            "attached_urls": ['http://google.com']
+        }
+        self.comm = Communication.objects.create(**data)
+
+    def test_is_adds_attachment(self):
+        assert len(mail.outbox[0].attachments) == 1
+
+

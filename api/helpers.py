@@ -1,4 +1,10 @@
+'''
+Helpers. For getting stuff done
+'''
 from .models import Communication
+from weasyprint import HTML
+from django.conf import settings
+import requests
 
 def send():
     '''Will send any kind of message'''
@@ -22,6 +28,3 @@ def msg(message, number=None, channel=None, owner=None, transports=['sms']):
         data['preferred_transport'] = transport
         Communication.objects.create(**data)
 
-def send_email():
-    '''Send an email'''
-    pass

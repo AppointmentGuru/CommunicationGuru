@@ -50,5 +50,6 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": os.environ.get('MAILGUN_SENDER_DOMAIN'),
     'WEBHOOK_AUTHORIZATION': os.environ.get('WEBHOOK_AUTHORIZATION'),
 }
+MAILGUN_API_URL = 'https://api.mailgun.net'
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
 

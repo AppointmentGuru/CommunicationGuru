@@ -56,8 +56,10 @@ class Communication(models.Model):
     template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
 
     subject = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    short_message = models.CharField(max_length=144, blank=True, null=True)
-    message = models.TextField(blank=True, null=True)
+    short_message = models.CharField(max_length=144, blank=True, null=True, help_text='Used for short messages')
+    message = models.TextField(blank=True, null=True, help_text='Used for emails')
+
+    attached_urls = ArrayField(models.URLField(), default=[], blank=True, null=True, help_text='Urls will be converted to pdf and attached')
 
     context = JSONField(blank=True, null=True)
 
@@ -71,7 +73,6 @@ class Communication(models.Model):
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
-
 
     def apply_template(self, with_save=True):
         '''given a CommunicationTemplate and context: generate subject, short_message and message'''
@@ -99,10 +100,12 @@ class Communication(models.Model):
             return result
         if self.preferred_transport == 'email':
             emailer = Email(self.recipient_emails, self.sender_email)
+
             result, message = emailer.send(
                 self.subject,
                 self.message,
-                self.message
+                self.message,
+                urls=self.attached_urls
             )
             print(result)
             self.backend_used = settings.EMAIL_BACKEND

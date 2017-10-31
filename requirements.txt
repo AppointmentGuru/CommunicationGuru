@@ -13,7 +13,7 @@ boto==2.48.0
 kong_oauth==0.1
 django-phonenumber-field
 python-dateutil
-
+weasyprint
 
 ipython
 ipdb
