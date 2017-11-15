@@ -53,15 +53,15 @@ def send_email(communication):
 # example sms response
 # {
 # 	'parent': < twilio.rest.resources.messages.Messages object at 0x7fc08a57a2e8 > ,
-# 	'name': 'SMb2c6f00d73c94ed7beb85f6774c4290d',
-# 	'base_uri': 'https://api.twilio.com/2010-04-01/Accounts/AC017ac887b3e1bf6e48a9b8c360d707af/Messages',
-# 	'auth': ('AC017ac887b3e1bf6e48a9b8c360d707af', 'fbaf1e3b594177bc3eaba69d61735a0a'),
+# 	'name': '..',
+# 	'base_uri': 'https://api.twilio.com/2010-04-01/Accounts/.../Messages',
+# 	'auth': ('..', '..'),
 # 	'timeout': < Unset Timeout Value > ,
 # 	'sid': 'SMb2c6f00d73c94ed7beb85f6774c4290d',
 # 	'date_created': datetime.datetime(2017, 11, 13, 22, 6, 3),
 # 	'date_updated': datetime.datetime(2017, 11, 13, 22, 6, 3),
 # 	'date_sent': None,
-# 	'account_sid': 'AC017ac887b3e1bf6e48a9b8c360d707af',
+# 	'account_sid': '..',
 # 	'to': '+27832566533',
 # 	'messaging_service_sid': None,
 # 	'body': '[SANDBOX for: +27832566533] testing',
@@ -75,7 +75,7 @@ def send_email(communication):
 # 	'error_code': None,
 # 	'error_message': None,
 # 	'subresource_uris': {
-# 		'media': '/2010-04-01/Accounts/AC017ac887b3e1bf6e48a9b8c360d707af/Messages/SMb2c6f00d73c94ed7beb85f6774c4290d/Media.json'
+# 		'media': '/2010-04-01/Accounts/../Messages/../Media.json'
 # 	},
 # 	'from_': '+12019044071',
 # 	'media_list': < twilio.rest.resources.media.MediaList object at 0x7fc08a57ac50 >
