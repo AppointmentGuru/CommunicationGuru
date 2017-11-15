@@ -6,6 +6,10 @@ import json
 from .models import Communication
 
 @shared_task
+def ping():
+    return {'result': 'pong'}
+
+@shared_task
 def send_sms(communication):
     '''
     Sends an SMS based off a provided communication

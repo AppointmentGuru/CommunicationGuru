@@ -5,28 +5,50 @@ from rest_framework import \
     routers,\
     viewsets,\
     filters
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 from slackclient import SlackClient
 
-from .models import Communication
-from .mixins import MultiSerializerMixin
 from services.email import Email
 from services.sms import SMS
 
-from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
+from .models import Communication
+from .mixins import MultiSerializerMixin
 from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
+from .diagnostics import \
+    db_connected,\
+    celery_working,\
+    rabbit_is_up,\
+    failed_tasks_count
 from .serializers import \
     CommunicationStatusSerializer,\
     CommunicationListSerializer,\
     CommunicationDetailSerializer
-import os, json
+
+from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
+import os, json, requests
 
 @csrf_exempt
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def health(request):
-    return HttpResponse('ok')
+
+    # test connect to db:
+    db_connected(Communication)
+    # test sending a task:
+    celery_working()
+
+    rabbit_status = rabbit_is_up()
+
+    tasks = failed_tasks_count(minutes_back=5, failure_threshold=0)
+    result = {
+        'SANDBOX': settings.SANDBOX_MODE,
+        'rabbit': rabbit_status.json(),
+        'failed_tasks': tasks.count()
+    }
+
+    return JsonResponse(result)
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])

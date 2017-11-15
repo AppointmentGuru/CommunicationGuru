@@ -63,5 +63,22 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
         self.comm.refresh_from_db()
         # todo .. verify that it's saving the response ..
 
+class CommunicationTestCase(TestCase):
 
+    def setUp(self):
+        comm = Communication()
+        comm.save()
+
+        for x in range(0,5):
+            stat = CommunicationStatus()
+            stat.status = str(x)
+            stat.communication = comm
+            stat.save()
+
+        self.comm = comm
+
+    def test_status_list(self):
+
+        status_list = self.comm.status_list
+        import ipdb;ipdb.set_trace()
 

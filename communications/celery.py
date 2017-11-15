@@ -8,9 +8,10 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'communications.settings')
 
 from django.conf import settings  # noqa
-BROKER_URL = 'amqp://{}:{}@rabbitmq:5672//'.format(
+BROKER_URL = 'amqp://{}:{}@{}:5672//'.format(
     os.environ.get('RABBITMQ_DEFAULT_USER'),
-    os.environ.get('RABBITMQ_DEFAULT_PASS')
+    os.environ.get('RABBITMQ_DEFAULT_PASS'),
+    os.environ.get('RABBITMQ_DEFAULT_HOST')
 )
 app = Celery('communications', broker=BROKER_URL, result_backend = 'rpc://')
 
