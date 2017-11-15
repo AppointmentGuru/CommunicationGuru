@@ -13,10 +13,14 @@ from slackclient import SlackClient
 from services.email import Email
 from services.sms import SMS
 
-from .tasks import ping
 from .models import Communication
 from .mixins import MultiSerializerMixin
 from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
+from .diagnostics import \
+    db_connected,\
+    celery_working,\
+    rabbit_is_up,\
+    failed_tasks_count
 from .serializers import \
     CommunicationStatusSerializer,\
     CommunicationListSerializer,\
@@ -31,23 +35,17 @@ import os, json, requests
 def health(request):
 
     # test connect to db:
-    comm = Communication.objects.first()
+    db_connected(Communication)
     # test sending a task:
-    task = ping.apply()
-    assert task.status == 'SUCCESS',\
-        'Error when queuing a task'
+    celery_working()
 
-    url = 'http://{}:15672/api/healthchecks/node'.format(os.environ.get('RABBITMQ_DEFAULT_HOST'))
-    user = os.environ.get('RABBITMQ_DEFAULT_USER')
-    passwd = os.environ.get('RABBITMQ_DEFAULT_PASS')
+    rabbit_status = rabbit_is_up()
 
-    rabbit_status = requests.get(url, auth=(user, passwd))
-    assert rabbit_status.json().get('status') == 'ok',\
-        'Issues connecting to rabbit: {}'.format(rabbit_status.content)
-
+    tasks = failed_tasks_count(minutes_back=5, failure_threshold=0)
     result = {
         'SANDBOX': settings.SANDBOX_MODE,
-        'rabbit': rabbit_status.json()
+        'rabbit': rabbit_status.json(),
+        'failed_tasks': tasks.count()
     }
 
     return JsonResponse(result)
