@@ -35,7 +35,9 @@ def send_email(communication):
     emailer = Email(recipients, sender)
 
     result, message = emailer.send(subject, message, message, urls=urls)
-
+    response = {
+        "result": result
+    }
     status = message.anymail_status
     comm_id = communication.get('id', None)
     if comm_id is not None and status is not None:
@@ -44,10 +46,12 @@ def send_email(communication):
         communication.backend_message_id = status.message_id
         if status.esp_response is not None:
             communication.backend_result = message.anymail_status.esp_response.json()
+            response["response"] = message.anymail_status.esp_response.json()
         communication.save()
 
+        response["message_id"] = status.message_id
 
-    return message
+    return response
 
 
 # example sms response
