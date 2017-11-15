@@ -77,6 +77,11 @@ class Communication(models.Model):
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
 
     @property
+    def status_list(self):
+        statuses = self.communicationstatus.all().order_by(created_date)
+        return [status.status for status in statuses]
+
+    @property
     def as_json_string(self):
         from .serializers import CommunicationDetailSerializer
         serialized = CommunicationDetailSerializer(self)

@@ -5,7 +5,7 @@ services:
     image: postgres:9.5
     volumes:
       - "postgres-db-volume:/var/lib/postgresql/data"
-  rabbitmq:
+  communicationmq:
     image: rabbitmq:3.6-management
     environment:
       - RABBITMQ_DEFAULT_USER=communicationguru
