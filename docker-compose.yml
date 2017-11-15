@@ -5,8 +5,25 @@ services:
     image: postgres:9.5
     volumes:
       - "postgres-db-volume:/var/lib/postgresql/data"
+  rabbitmq:
+    image: rabbitmq:3.6-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=communicationguru
+      - RABBITMQ_DEFAULT_PASS=d69fd086f156e3438b50aa966d09463b
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  worker:
+    build: .
+    command: celery -A communications worker -l info
+    depends_on:
+      - db
+    volumes:
+      - .:/code
+    env_file:
+      - dev.env
+      # - prod.env
   web:
-    restart: on-failure:10
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     #command: newrelic-admin run-program gunicorn appointmentguru.wsgi:application -b :8000 --reload
@@ -18,7 +35,7 @@ services:
       - "8000:8000"
     env_file:
       - dev.env
-      - prod.env
+      # - prod.env
 
 volumes:
   postgres-db-volume:

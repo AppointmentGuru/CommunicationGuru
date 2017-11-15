@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core import mail
 from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate
+import json
 
+@override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelAppliesTemplateTestCase(TestCase):
 
     def setUp(self):
@@ -35,6 +37,12 @@ class ModelAppliesTemplateTestCase(TestCase):
     def test_it_templates_message(self):
         assert self.comms.message == 'This is a long message: bar'
 
+    def test_as_json_string(self):
+        res = self.comms.as_json_string
+        assert isinstance(res, str)
+        json.loads(res) # verify it's valid json
+
+@override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelSendsEmailWithAttachmentsTestCase(TestCase):
 
     def setUp(self):
@@ -50,5 +58,10 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
 
     def test_is_adds_attachment(self):
         assert len(mail.outbox[0].attachments) == 1
+
+    def test_it_sets_message_id(self):
+        self.comm.refresh_from_db()
+        # todo .. verify that it's saving the response ..
+
 
 

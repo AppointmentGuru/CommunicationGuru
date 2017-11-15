@@ -1,4 +1,12 @@
 import os
+
+def get_secret(secret_name, default=None):
+    '''Returns a docker secret'''
+    try:
+        return open('/run/secrets/{}'.format(secret_name)).read().rstrip()
+    except FileNotFoundError:
+        return os.environ.get(secret_name, default)
+
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", '').split(',')]
 
 # aws storage
@@ -26,10 +34,16 @@ if db_password:
     DATABASES.get('default').update({'PASSWORD': db_password})
 
 REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+        # 'kong_oauth.drf_authbackends.KongDownstreamAuthHeadersAuthentication',
     )
 }
 
@@ -53,3 +67,5 @@ ANYMAIL = {
 MAILGUN_API_URL = 'https://api.mailgun.net'
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
 
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'True') == 'True'

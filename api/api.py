@@ -1,17 +1,30 @@
-from rest_framework import decorators, permissions, routers, serializers, viewsets
+from rest_framework import \
+    decorators,\
+    authentication,\
+    permissions,\
+    routers,\
+    viewsets,\
+    filters
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from slackclient import SlackClient
 
-from .models import Communication, CommunicationStatus
+from .models import Communication
 from .mixins import MultiSerializerMixin
 from services.email import Email
 from services.sms import SMS
 
+from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
+from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
+from .serializers import \
+    CommunicationStatusSerializer,\
+    CommunicationListSerializer,\
+    CommunicationDetailSerializer
 import os, json
 
 @csrf_exempt
 @decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.AllowAny, ))
 def health(request):
     return HttpResponse('ok')
 
@@ -51,33 +64,28 @@ Data:
 def incoming_email(request):
     pass
 
-class CommunicationStatusSerializer(serializers.ModelSerializer):
-    order_by = ('created_date')
-    class Meta:
-        model = CommunicationStatus
-        fields = '__all__'
-
-# Serializers define the API representation.
-class CommunicationListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Communication
-        fields = '__all__'
-
-class CommunicationDetailSerializer(serializers.ModelSerializer):
-    communicationstatus = CommunicationStatusSerializer(read_only=True, many=True)
-    class Meta:
-        model = Communication
-        fields = '__all__'
-
-
 class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
+
     queryset = Communication.objects.all()
+
+    authentication_classes = (
+        authentication.SessionAuthentication,
+        KongDownstreamAuthHeadersAuthentication
+    )
+    permission_classes = (permissions.IsAuthenticated,)
 
     default_serializer_class = CommunicationListSerializer
     serializer_map = {
         'retrieve': CommunicationDetailSerializer,
         'list': CommunicationListSerializer
     }
+    filter_backends = (
+        filters.SearchFilter,
+        filters.OrderingFilter,
+        IsOwnerFilterBackend,
+        ObjectOverlapFilterBackend)
+
+    ordering = ('-id',)
 
 router = routers.DefaultRouter()
 router.register(r'communications', CommunicationViewSet)

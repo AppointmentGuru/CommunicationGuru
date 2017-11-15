@@ -8,8 +8,9 @@ class CommunicationStatusInline(admin.TabularInline):
     model = CommunicationStatus
 
 class CommunicationAdmin(admin.ModelAdmin):
-    list_display = ('preferred_transport', 'backend_used', 'backend_message_id', 'sender_email', 'recipient_emails', 'recipient_phone_number', 'subject', 'send_date')
-    list_filter = ('owner', 'object_ids', 'sender_email', 'backend_message_id', 'backend_used')
+    list_display = ('owner', 'object_ids', 'preferred_transport', 'backend_used', 'backend_message_id', 'sender_email', 'recipient_emails', 'recipient_phone_number', 'subject', 'send_date')
+    list_filter = ('owner', 'backend_used')
+    list_search = ('object_ids', 'sender_email', 'backend_message_id',)
     inlines = [CommunicationStatusInline]
 
 class CommunicationStatusAdmin(admin.ModelAdmin):

@@ -23,6 +23,21 @@ class TwillioBackend:
             from_=self.from_number,
             StatusCallback=settings.TWILLIO_STATUS_CALLBACK)
 
+    def as_json(self):
+        fields = [
+            'name', 'base_uri', 'sid',
+            # 'date_created', 'date_updated', 'date_send',
+            'account_sid', 'to', 'messaging_service_sid',
+            'body', 'status', 'num_segments', 'num_media', 'direction',
+            'api_version', 'price', 'price_unit', 'error_code', 'error_message',
+            'from_',
+        ]
+        json_result = {}
+        for field in fields:
+            value = getattr(result, field, None)
+            json_result[field] = value
+        return json_result
+
     def fetch(self, id):
         '''
         Get the data on this message
@@ -40,12 +55,7 @@ class TwillioBackend:
         communication.save()
 
         #save raw response:
-        parsed_data = {}
-        excluded_fields = ['parent', 'timeout', 'media_list', 'date_created', 'date_updated']
-        included_fields = set(result.__dict__.keys()).difference(set(excluded_fields))
-
-        for key in included_fields:
-            parsed_data[key] = result.__dict__.get(key)
+        parsed_data = self.as_json()
         communication.raw_result = parsed_data
         communication.save()
 

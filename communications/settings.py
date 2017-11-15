@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'kong_oauth',
     'storages',
     'rest_framework',
+    'django_celery_results',
 
     'api',
     'communications',

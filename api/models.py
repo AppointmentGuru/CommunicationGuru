@@ -3,9 +3,11 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.postgres.fields import JSONField, ArrayField
 from datetime import datetime
+from rest_framework import renderers
 
 from services.sms import SMS
 from services.email import Email
@@ -63,7 +65,7 @@ class Communication(models.Model):
 
     context = JSONField(blank=True, null=True)
 
-    send_date = models.DateTimeField(default=datetime.now, db_index=True)
+    send_date = models.DateTimeField(default=timezone.now, db_index=True)
     last_sent_date = models.DateTimeField(blank=True, null=True, db_index=True)
     status = models.CharField(max_length=10, default='N', choices=SEND_STATUSES, db_index=True)
 
@@ -73,6 +75,12 @@ class Communication(models.Model):
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
+
+    @property
+    def as_json_string(self):
+        from .serializers import CommunicationDetailSerializer
+        serialized = CommunicationDetailSerializer(self)
+        return renderers.JSONRenderer().render(serialized.data).decode('utf-8')
 
     def apply_template(self, with_save=True):
         '''given a CommunicationTemplate and context: generate subject, short_message and message'''
@@ -91,31 +99,19 @@ class Communication(models.Model):
 
     def send(self):
 
+        # TODO: only send if send_date is now / in the past
+
         if self.preferred_transport == 'sms':
             sms = SMS()
             result = sms.send(
                 self.short_message,
                 self.recipient_phone_number.as_e164)
-            sms.save(self, result)
-            return result
-        if self.preferred_transport == 'email':
-            emailer = Email(self.recipient_emails, self.sender_email)
+            return sms.save(self, result)
 
-            result, message = emailer.send(
-                self.subject,
-                self.message,
-                self.message,
-                urls=self.attached_urls
-            )
-            print(result)
-            self.backend_used = settings.EMAIL_BACKEND
-            status = message.anymail_status
-            if status is not None:
-                self.backend_message_id = status.message_id
-                if status.esp_response is not None:
-                    self.backend_result = message.anymail_status.esp_response.json()
-            self.save()
-            return (result, message)
+        if self.preferred_transport == 'email':
+            from .tasks import send_email
+            return send_email.delay(self.as_json_string)
+
 
     def send_html_email(self, subject, plaintext, html):
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
