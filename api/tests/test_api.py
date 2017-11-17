@@ -1,5 +1,5 @@
 from django.test import TestCase, override_settings
-import json
+import json, responses
 
 from .datas.payloads import TWILLIO_SMS_SENT, MAILGUN_STATUS_UPDATE
 from ..models import CommunicationStatus, Communication
@@ -41,6 +41,32 @@ class IncomingTwillioSMSWebHookTestCase(TestCase):
 
     def test_incoming_twillio_sms_result(self):
         assert CommunicationStatus.objects.count() == 1
+
+class SMSMessageSearchEndPointTestCase(TestCase):
+
+    @override_settings(SMS_BACKEND='services.backends.twillio.TwillioBackend')
+    def test_403_error_if_backend_doesnt_support_search(self):
+        url = reverse('backend_messages', args=('sms',))
+
+        response = self.client.get(url, **get_proxy_headers("1"))
+        assert_response(response, 403)
+
+    @responses.activate
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    @override_settings(ZOOM_BASE_URL='https://www.zoomconnect.com:443')
+    @override_settings(ZOOM_API_TOKEN='1234')
+    @override_settings(ZOOM_EMAIL='joe@soap.com')
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    def test_performs_search(self):
+        responses.add(
+            responses.GET,
+            'https://www.zoomconnect.com:443/app/api/rest/v1/messages/?fieldData=foo&campaign=test&email=joe%40soap.com&token=1234',
+            json = {"messages": []}
+        )
+        url = reverse('backend_messages', args=('sms',))
+        url = '{}?fieldData=foo&campaign=test'.format(url)
+        response = self.client.get(url, **get_proxy_headers("1"))
+
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class CreateEmailCommunicationTestCase(TestCase):

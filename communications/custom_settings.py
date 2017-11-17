@@ -54,6 +54,11 @@ TWILLIO_SID = os.environ.get('TWILLIO_SID')
 TWILLIO_AUTH_TOKEN = os.environ.get('TWILLIO_AUTH_TOKEN')
 TWILLIO_PHONE_NUMBER = os.environ.get('TWILLIO_PHONE_NUMBER')
 TWILLIO_STATUS_CALLBACK = "https://communicationguru.appointmentguru.co/incoming/slack/"
+
+ZOOM_BASE_URL = 'https://www.zoomconnect.com:443'
+ZOOM_API_TOKEN = os.environ.get('ZOOM_AUTH_TOKEN')
+ZOOM_EMAIL = 'tech@appointmentguru.co'
+
 SMS_BACKEND = os.environ.get('SMS_BACKEND')
 
 # EMAIL / MailGun

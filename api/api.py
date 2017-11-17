@@ -78,6 +78,28 @@ Data:
 
     return HttpResponse('ok')
 
+@csrf_exempt
+@decorators.api_view(['GET'])
+@decorators.permission_classes((permissions.IsAuthenticated,))
+@decorators.authentication_classes((
+    authentication.SessionAuthentication,
+    KongDownstreamAuthHeadersAuthentication,
+))
+def backends_messages(request, transport):
+    '''
+    Hits the configured backends list endpoint
+    '''
+    status_code = 200
+
+    try:
+        params = request.GET.copy()
+        data = SMS().search(params).json()
+    except AssertionError:
+        data = {
+            'message': 'Sorry, the current backend does not support searching for SMSes'
+        }
+        status_code = 403
+    return JsonResponse(data, status=status_code)
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
