@@ -12,7 +12,7 @@ class TwillioBackend:
         self.from_number = settings.TWILLIO_PHONE_NUMBER
         # todo: backends:
 
-    def send(self, message, to_number):
+    def send(self, message, to_number, **kwargs):
 
         if not to_number.startswith('+'):
             to_number = '+{}'.format(to_number)
@@ -44,7 +44,7 @@ class TwillioBackend:
         '''
         return client.messages.get(id).__dict__
 
-    def save(self, communication, result):
+    def save(self, communication, result, , **kwargs):
         from api.models import CommunicationStatus
         status = CommunicationStatus()
         status.status = result.status

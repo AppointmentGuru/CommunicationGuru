@@ -15,16 +15,13 @@ def test_something(self, mock_sms)
 ```
 """
 
-from twilio.rest import TwilioRestClient
-from django.conf import settings
-
 class MockSMSBackend:
 
     def __init__(self):
         pass
 
-    def send(self, message, to_number):
+    def send(self, message, to_number, **kwargs):
         return {'message': message, 'to': to_number}
 
-    def save(self, communication, result):
+    def save(self, communication, result, **kwargs):
         return (communication, result)

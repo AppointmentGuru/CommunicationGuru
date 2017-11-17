@@ -22,7 +22,6 @@ from .diagnostics import \
     rabbit_is_up,\
     failed_tasks_count
 from .serializers import \
-    CommunicationStatusSerializer,\
     CommunicationListSerializer,\
     CommunicationDetailSerializer
 

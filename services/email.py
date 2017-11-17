@@ -2,7 +2,7 @@ from django.core import mail
 from weasyprint import HTML
 from django.conf import settings
 from anymail.message import AnymailMessage
-import json, six, requests
+import json, six
 
 class Email:
 

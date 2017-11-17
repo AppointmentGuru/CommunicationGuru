@@ -6,11 +6,9 @@ from django.conf import settings
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.postgres.fields import JSONField, ArrayField
-from datetime import datetime
 from rest_framework import renderers
 
 from services.sms import SMS
-from services.email import Email
 
 from django.template import Context
 from django.template import Template
@@ -127,8 +125,6 @@ class Communication(models.Model):
         if isinstance(payload, six.string_types):
             payload = json.loads(payload)
 
-        from api.models import CommunicationStatus, Communication
-        from api.models import CommunicationStatus
         status = CommunicationStatus()
 
         message_id = payload.get('Message-Id')
