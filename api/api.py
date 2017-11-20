@@ -69,12 +69,19 @@ def slack_webhook(request):
         Email(None).status_update(data)
     if (request.data.get('SmsSid') is not None):
         SMS().status_update(request.data)
-    message = """
-Data:
-```{}```""".format(json.dumps(request.data, indent=2))
 
+    message = """
+`POST`:
+```{}```""".format(json.dumps(request.data, indent=2))
     res = slack_client.api_call("chat.postMessage", channel=channel, text=message)
     print(res)
+
+    if len(request.GET.dict().items()) > 0:
+        message = """
+    `GET`:
+    ```{}```""".format(json.dumps(request.GET.dict(), indent=2))
+        res = slack_client.api_call("chat.postMessage", channel=channel, text=message)
+        print(res)
 
     return HttpResponse('ok')
 
@@ -93,6 +100,8 @@ def backends_messages(request, transport):
 
     try:
         params = request.GET.copy()
+        params['campaign'] = 'practitioner-{}'.format(request.user.id)
+
         data = SMS().search(params).json()
     except AssertionError:
         data = {

@@ -26,6 +26,11 @@ class WebHookTestCase(TestCase):
         assert CommunicationStatus.objects.count() == 1,\
             'Expect it to create a communication status'
 
+    def test_get_data(self):
+
+        result = self.client.post('/incoming/slack/?foo=bar', content_type='application/json')
+        import ipdb;ipdb.set_trace()
+
 
 class IncomingTwillioSMSWebHookTestCase(TestCase):
 
@@ -60,11 +65,11 @@ class SMSMessageSearchEndPointTestCase(TestCase):
     def test_performs_search(self):
         responses.add(
             responses.GET,
-            'https://www.zoomconnect.com:443/app/api/rest/v1/messages/?fieldData=foo&campaign=test&email=joe%40soap.com&token=1234',
+            'https://www.zoomconnect.com:443/app/api/rest/v1/messages/?fieldData=foo&campaign=practitioner-1&email=joe%40soap.com&token=1234',
             json = {"messages": []}
         )
         url = reverse('backend_messages', args=('sms',))
-        url = '{}?fieldData=foo&campaign=test'.format(url)
+        url = '{}?fieldData=foo'.format(url)
         response = self.client.get(url, **get_proxy_headers("1"))
 
 
