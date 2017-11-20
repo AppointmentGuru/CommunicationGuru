@@ -23,8 +23,10 @@ docker_environment:
     value: "{{twillio_auth_token}}"
   - key: TWILLIO_PHONE_NUMBER
     value: +12019044071
+  - key: ZOOM_AUTH_TOKEN
+    value: "{{zoom_auth_token}}"
   - key: SMS_BACKEND
-    value: services.backends.twillio.TwillioBackend
+    value: services.backends.zoomconnect.ZoomSMSBackend
   - key: SANDBOX_MODE
     value: False
   - key: SANDBOX_SMS
