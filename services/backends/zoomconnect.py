@@ -44,6 +44,9 @@ class ZoomSMSBackend:
         return requests.get(url, params=params, headers=headers)
 
     def search(self, params={}, **kwargs):
-        url, credentials, headers = self._get_url('/v1/messages/')
+        url, credentials, headers = self._get_url('/v1/messages/all')
         params.update(credentials)
-        return requests.get(url, params=params, headers=headers)
+        print(url)
+        print(params)
+        print(headers)
+        return  requests.get(url, params=params, headers=headers)
