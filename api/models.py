@@ -109,7 +109,8 @@ class Communication(models.Model):
             result = sms.send(
                 self.short_message,
                 self.recipient_phone_number.as_e164)
-            return sms.save(self, result)
+            return result
+            # return sms.save(self, result)
 
         if self.preferred_transport == 'email':
             from .tasks import send_email
