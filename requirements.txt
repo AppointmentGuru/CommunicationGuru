@@ -15,6 +15,7 @@ kong_oauth==0.1
 django-phonenumber-field
 python-dateutil
 weasyprint
+redis 
 
 ipython
 ipdb

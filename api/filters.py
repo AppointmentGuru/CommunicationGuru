@@ -12,6 +12,7 @@ class ObjectOverlapFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         '''
         objects_{object_name}=1,2,3
+        -> /:object/1,2,3
         '''
         for key,value in request.GET.items():
             if key.startswith('objects_'):

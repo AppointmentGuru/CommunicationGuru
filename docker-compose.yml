@@ -5,14 +5,8 @@ services:
     image: postgres:9.5
     volumes:
       - "postgres-db-volume:/var/lib/postgresql/data"
-  communicationmq:
-    image: rabbitmq:3.6-management
-    environment:
-      - RABBITMQ_DEFAULT_USER=communicationguru
-      - RABBITMQ_DEFAULT_PASS=d69fd086f156e3438b50aa966d09463b
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  redis:
+    image: redis:4.0.5-alpine
   worker:
     build: .
     command: celery -A communications worker -l info

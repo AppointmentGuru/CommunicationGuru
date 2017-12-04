@@ -41,7 +41,11 @@ class Communication(models.Model):
     def __str__(self):
         return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
 
+    # isOwner
     owner = models.CharField(max_length=100, blank=True, null=True)
+    # appointment:123 client:345 user:
+    # communicatoin/appointment/:id
+    # tags = ArrayField
     object_ids = ArrayField(models.CharField(max_length=100), default=[], blank=True, null=True)
 
     # the object to which this lineitem is attached
