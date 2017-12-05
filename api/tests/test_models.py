@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from django.test import TestCase, override_settings
 from django.core import mail
 from django.contrib.auth import get_user_model
-from ..models import Communication, CommunicationTemplate
+from ..models import Communication, CommunicationTemplate, CommunicationStatus
 import json
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
@@ -80,5 +80,5 @@ class CommunicationTestCase(TestCase):
     def test_status_list(self):
 
         status_list = self.comm.status_list
-        import ipdb;ipdb.set_trace()
+        assert len(status_list) == 5
 

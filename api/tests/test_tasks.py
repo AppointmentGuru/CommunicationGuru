@@ -30,8 +30,6 @@ class SendSMSTestCase(TestCase):
     def test_is_ok(self):
         assert self.result.status == 'SUCCESS'
 
-    def test_returns_twilio_message(self):
-        assert isinstance(self.result.result, Message)
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class SendEmailTestCase(TestCase):

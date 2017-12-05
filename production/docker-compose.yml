@@ -3,16 +3,6 @@
 version: '3'
 
 services:
-  {{docker_service}}mq:
-    image: rabbitmq:3.6-management
-    environment:
-      - RABBITMQ_DEFAULT_USER={{docker_service}}
-      - RABBITMQ_DEFAULT_PASS={{rabbit_password}}
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    networks:
-      - kong
   {{docker_service}}_worker:
     image: {{docker_org}}/{{docker_image}}:{{docker_version}}
     command: celery -A communications worker -l info
@@ -23,10 +13,6 @@ services:
         update_config:
           parallelism: 1
           delay: 30s
-    environment:
-      - RABBITMQ_DEFAULT_HOST={{docker_service}}mq
-      - RABBITMQ_DEFAULT_USER={{docker_service}}
-      - RABBITMQ_DEFAULT_PASS={{rabbit_password}}
 {% for var in docker_environment %}
       - {{var.key}}={{var.value}}
 {% endfor %}
@@ -40,10 +26,6 @@ services:
         update_config:
           parallelism: 1
           delay: 30s
-    environment:
-      - RABBITMQ_DEFAULT_HOST={{docker_service}}mq
-      - RABBITMQ_DEFAULT_USER={{docker_service}}
-      - RABBITMQ_DEFAULT_PASS={{rabbit_password}}
 {% for var in docker_environment %}
       - {{var.key}}={{var.value}}
 {% endfor %}

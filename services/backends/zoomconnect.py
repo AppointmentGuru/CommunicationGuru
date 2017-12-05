@@ -37,6 +37,8 @@ class ZoomSMSBackend:
             data['campaign'] = campaign
 
         response = requests.post(url, json=data, params=params, headers=headers)
+        if response.status_code != 200:
+            raise Exception(response.content)
         return response.content
 
     def fetch(self, id, **kwargs):

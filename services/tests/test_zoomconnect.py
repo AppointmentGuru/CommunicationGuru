@@ -78,7 +78,7 @@ class ZoomQuerySMSTestCase(TestCase):
         params = {
             'dataField': 'pra:1'
         }
-        self.__expect_response('/v1/messages/?dataField=pra%3A1')
+        self.__expect_response('/v1/messages/all?dataField=pra%3A1')
         res = SMS().search(params)
 
     # def test_fetch(self):

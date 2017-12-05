@@ -6,6 +6,8 @@ from ..models import CommunicationStatus, Communication
 from .testutils import assert_response, get_proxy_headers
 from django.urls import reverse
 
+import unittest
+
 class WebHookTestCase(TestCase):
 
     def test_slack_webhook_payload(self):
@@ -27,11 +29,10 @@ class WebHookTestCase(TestCase):
             'Expect it to create a communication status'
 
     def test_get_data(self):
-
         result = self.client.post('/incoming/slack/?foo=bar', content_type='application/json')
-        import ipdb;ipdb.set_trace()
+        assert result.status_code == 200
 
-
+@unittest.skip('Not currently supported')
 class IncomingTwillioSMSWebHookTestCase(TestCase):
 
     def setUp(self):
@@ -65,7 +66,7 @@ class SMSMessageSearchEndPointTestCase(TestCase):
     def test_performs_search(self):
         responses.add(
             responses.GET,
-            'https://www.zoomconnect.com:443/app/api/rest/v1/messages/?fieldData=foo&campaign=practitioner-1&email=joe%40soap.com&token=1234',
+            'https://www.zoomconnect.com:443/app/api/rest/v1/messages/all?fieldData=foo&campaign=practitioner-1&email=joe%40soap.com&token=1234',
             json = {"messages": []}
         )
         url = reverse('backend_messages', args=('sms',))

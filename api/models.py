@@ -80,7 +80,7 @@ class Communication(models.Model):
 
     @property
     def status_list(self):
-        statuses = self.communicationstatus.all().order_by(created_date)
+        statuses = self.communicationstatus.all().order_by('created_date')
         return [status.status for status in statuses]
 
     @property
