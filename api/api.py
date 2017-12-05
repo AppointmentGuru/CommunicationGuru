@@ -38,12 +38,12 @@ def health(request):
     # test sending a task:
     celery_working()
 
-    rabbit_status = rabbit_is_up()
+    # rabbit_status = rabbit_is_up()
 
     tasks = failed_tasks_count(minutes_back=5, failure_threshold=0)
     result = {
         'SANDBOX': settings.SANDBOX_MODE,
-        'rabbit': rabbit_status.json(),
+        # 'rabbit': rabbit_status.json(),
         'failed_tasks': tasks.count()
     }
 

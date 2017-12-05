@@ -13,6 +13,7 @@ services:
         update_config:
           parallelism: 1
           delay: 30s
+    environment:
 {% for var in docker_environment %}
       - {{var.key}}={{var.value}}
 {% endfor %}
@@ -26,6 +27,7 @@ services:
         update_config:
           parallelism: 1
           delay: 30s
+    environment:
 {% for var in docker_environment %}
       - {{var.key}}={{var.value}}
 {% endfor %}
