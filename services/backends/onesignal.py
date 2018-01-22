@@ -25,7 +25,7 @@ class OneSignalBackend:
             }
         }
         url = "{}/notifications".format(self.base_url)
-        return
+        return requests.post(url, payload, )
 
     def fetch():
         pass

@@ -55,7 +55,7 @@ class Communication(models.Model):
 
     recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    recipient_emails = ArrayField(models.EmailField(), blank=True, null=True, db_index=True)
+    recipient_emails = ArrayField(models.EmailField(blank=True, null=True), blank=True, null=True, db_index=True)
     recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
     template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
 

@@ -6,6 +6,18 @@ from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 import json
 
+class CommunicationTestCase(TestCase):
+
+    def test_minimal_sms_fields(self):
+
+        comm = Communication()
+        comm.short_message = 'testing'
+        comm.owner = '1'
+        comm.object_ids = 'user:1'
+        comm.recipient_phone_number = '+27832566533'
+        comm.save()
+
+
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelAppliesTemplateTestCase(TestCase):
 
