@@ -16,6 +16,9 @@ class CommunicationAdmin(admin.ModelAdmin):
 class CommunicationStatusAdmin(admin.ModelAdmin):
     list_display = ('communication', 'status', 'created_date')
 
+class CommunicationTemplateAdmin(admin.ModelAdmin):
+    list_filter = ('owner',)
+
 admin.site.register(Communication, CommunicationAdmin)
 admin.site.register(CommunicationStatus, CommunicationStatusAdmin)
-admin.site.register(CommunicationTemplate)
+admin.site.register(CommunicationTemplate, CommunicationTemplateAdmin)

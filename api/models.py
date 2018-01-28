@@ -9,6 +9,7 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
 
 from services.sms import SMS
+import mistune
 
 from django.template import Context
 from django.template import Template
@@ -28,6 +29,10 @@ TRANSPORTS = [
 ]
 
 class CommunicationTemplate(models.Model):
+
+    def __str__(self):
+        return self.subject
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     subject = models.CharField(max_length=255, blank=True, null=True)
@@ -99,6 +104,9 @@ class Communication(models.Model):
                 template = Template(message)
                 context = Context(self.context)
                 rendered = template.render(context)
+                # apply markdown:
+                if field != 'subject':
+                    rendered = mistune.markdown(rendered)
                 setattr(self, field, rendered)
             if with_save:
                 self.save()
