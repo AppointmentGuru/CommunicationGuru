@@ -44,10 +44,16 @@ class ModelAppliesTemplateTestCase(TestCase):
         assert self.comms.subject == 'hi Joe'
 
     def test_it_templates_short_message(self):
-        assert self.comms.short_message == 'This is a short message: bar'
+        expected_message = '<p>This is a short message: bar</p>'
+        self.assertHTMLEqual(self.comms.short_message, expected_message)
+        # assert self.comms.short_message == expected_message,\
+        #     'Expected: {}. Got: {}'.format(expected_message, self.comms.short_message)
 
     def test_it_templates_message(self):
-        assert self.comms.message == 'This is a long message: bar'
+        expected_message = '<p>This is a long message: bar</p>'
+        self.assertHTMLEqual(self.comms.message, expected_message)
+        # assert self.comms.message == expected_message,\
+        #     'Expected: {}. Got: {}'.format(expected_message, self.comms.message)
 
     def test_as_json_string(self):
         res = self.comms.as_json_string
