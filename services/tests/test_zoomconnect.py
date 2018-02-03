@@ -9,7 +9,8 @@ from django.test import TestCase, override_settings
 from django.conf import settings
 
 import responses, json
-
+from .helpers import quick_create_sms
+from .datas import ZOOMCONNECT_STATUS_UPDATE, ZOOMCONNECT_REPLY
 # TODO: refactor to backends
 
 
@@ -99,7 +100,6 @@ class ZoomStatusUpdateTestCase(TestCase):
         zc.update_status(ZOOMCONNECT_STATUS_UPDATE)
 
     def test_it_creates_communication_status(self):
-        #import ipdb; ipdb.set_trace()
         self.assertIsInstance(CommunicationStatus.objects.all().first().communication, Communication)
         self.assertEqual(CommunicationStatus.objects.count(), 1)
 
@@ -112,22 +112,24 @@ class ZoomStatusUpdateTestCase(TestCase):
     def test_communication_status_has_correct_status(self):
         self.assertEqual(
             CommunicationStatus.objects.all().first().status,
-            ZOOMCONNECT_STATUS_UPDATE['status']
+            ZOOMCONNECT_STATUS_UPDATE.get('status')
         )
 
-# class ZoomReplyUpdateTestCase(TestCase):
+class ZoomReplyUpdateTestCase(TestCase):
 
-#     def setUp(self):
+    def setUp(self):
+        self.comm1 = quick_create_sms('5a75b1e67736b6c1d340af1e')
+        zc = ZoomSMSBackend()
+        zc.reply_received(self.comm1, ZOOMCONNECT_REPLY)
 
+    def test_communication_created_for_reply(self):
+        self.assertEqual(Communication.objects.count(), 2)
 
+    def test_reply_is_attached_to_original_communication(self):
+        self.assertEqual(Communication.objects.all().last().related_communication, self.comm1)
 
-    # def test_fetch(self):
-    #     pass
-    #     # self.sms.fetch(id)
-
-
-class ZoomConnectGetIdByPayloadTestCase(TestCase):
-
-    def test_get_id_by_payload(self):
-        sms_id = SMS().get_id_from_payload(ZOOMCONNECT_REPLY_PAYLOAD)
-        assert sms_id == '5a757f2a7736b6c1d340a1a4'
+    def test_reply_is_ok(self):
+        reply_comm = Communication.objects.all().last()
+        self.assertEqual(reply_comm.short_message, ZOOMCONNECT_REPLY.get('message'))
+        self.assertEqual(reply_comm.recipient_phone_number, ZOOMCONNECT_REPLY.get('from'))
+        self.assertEqual(reply_comm.sender_phone_number, self.comm1.sender_phone_number)
