@@ -2,7 +2,9 @@ from django.test import TestCase, override_settings
 from django.conf import settings
 from services.backends.zoomconnect import ZoomSMSBackend
 from services.sms import SMS
+from api.models import Communication, CommunicationStatus
 import responses, json
+from .helpers import quick_create_sms
 # TODO: refactor to backends
 
 @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
@@ -18,14 +20,14 @@ class ZoomSendSMSTestCase(TestCase):
             json = {"messageId": "456", "error": None}
         )
 
-        return self.sms.send("testing testing 123", "+27123456789")
+        return self.sms.send("testing testing 123", "+27730720832")
 
     @responses.activate
     def test_it_sets_data(self):
         msg = self.__send_sms()
 
         payload_sent = json.loads(responses.calls[0].request.body.decode('UTF-8'))
-        assert payload_sent.get('recipientNumber') == '+27123456789'
+        assert payload_sent.get('recipientNumber') == '+27730720832'
         assert payload_sent.get('message') == "testing testing 123"
 
     @responses.activate
@@ -53,7 +55,7 @@ class ZoomTestBackendTestCase(TestCase):
         sms = SMS()
         res = sms.send(
             'this is a test',
-            '+27832566533',
+            '+27730720832',
             tags='app:310,pra:684,cli:685,pro:12345',
             campaign='test')
 
@@ -80,6 +82,27 @@ class ZoomQuerySMSTestCase(TestCase):
         }
         self.__expect_response('/v1/messages/all?dataField=pra%3A1')
         res = SMS().search(params)
+
+class ZoomStatusUpdateTestCase(TestCase):
+
+    def setUp(self):
+        from .datas import ZOOMCONNECT_STATUS_UPDATE
+        self.comm = quick_create_sms(ZOOMCONNECT_STATUS_UPDATE.get('messageId'))
+        zc = ZoomSMSBackend()
+        zc.update_status(ZOOMCONNECT_STATUS_UPDATE)
+
+    def test_it_creates_communication_status(self):
+        self.assertIsInstance(
+            CommunicationStatus.objects.all().first(),
+            self.comm
+        )
+    
+    def test_communication_status_is_attached_to_original_message(self):
+        pass
+
+    def test_communication_status_has_correct_status(self):
+        pass
+        
 
     # def test_fetch(self):
     #     pass

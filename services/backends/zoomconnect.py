@@ -4,6 +4,7 @@ A backend for sending smses using: https://www.zoomconnect.com
 
 import requests
 from django.conf import settings
+from api.models import CommunicationStatus
 
 class ZoomSMSBackend:
 
@@ -44,6 +45,21 @@ class ZoomSMSBackend:
     def fetch(self, id, **kwargs):
         url, params, headers = self._get_url('/v1/messages/{}'.format(id))
         return requests.get(url, params=params, headers=headers)
+
+    def update_status(self, payload):
+        message_id = self.get_id_from_payload(payload)
+        comm = Communication.objects.get(backend_message_id=message_id)
+        status = CommunicationStatus()
+        status.communication = comm
+        status.raw_result = payload
+        status.status = payload['status']
+        status.save()
+
+    def get_id_from_payload(self, payload):
+        return payload['messageId']
+
+    # def reply_received(self, payload):
+    #     CommunicationStatus.objects.create(raw_result=payload)
 
     def search(self, params={}, **kwargs):
         url, credentials, headers = self._get_url('/v1/messages/all')
