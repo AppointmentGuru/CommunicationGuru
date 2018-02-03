@@ -130,11 +130,11 @@ def incoming(request, token, transport, update_type, backend):
 
     update_type_mapper = {
         'reply': 'reply_received',
-        'status': 'update_status'
+        'status': 'status_update'
     }
     method_to_call = update_type_mapper.get(update_type)
     payload = request.data
-    instance = Communication.get_from_payload(payload)
+    instance = Communication.get_from_payload(backend, transport, payload)
     getattr(instance, method_to_call)(payload)
     status_code = 200
     return JsonResponse({}, status=status_code)

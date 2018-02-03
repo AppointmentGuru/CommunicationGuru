@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
-from django.test import TestCase, override_settings
-from django.core import mail
-from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
+from .datas.payloads import ZOOMCONNECT_REPLY_PAYLOAD
+from django.test import TestCase, override_settings
+from django.contrib.auth import get_user_model
+from django.core import mail
 import json
 
 
@@ -82,6 +83,7 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
         self.comm.refresh_from_db()
         # todo .. verify that it's saving the response ..
 
+
 class CommunicationTestCase(TestCase):
 
     def setUp(self):
@@ -106,12 +108,19 @@ class CommunicationGetFromPayloadTestCase(TestCase):
 
     def setUp(self):
         self.comm = Communication()
-        self.comm.short_message = 'testing'
-        self.comm.owner = '1'
-        self.comm.object_ids = 'user:1'
+        self.comm.backend_message_id = "5a757f2a7736b6c1d340a1a4"
         self.comm.recipient_phone_number = '+27832566533'
-        self.comm.backend_message_id =
+        self.comm.backend_used = "zoomconnect"
+        self.comm.short_message = 'testing'
+        self.comm.object_ids = ['user:1']
         self.comm.cancel_signal = True
+        self.comm.owner = '1'
         self.comm.save()
 
     def test_get_from_payload(self):
+        old_comm = Communication().get_from_payload(
+            'zoomconnect',
+            'sms',
+            ZOOMCONNECT_REPLY_PAYLOAD
+        )
+        assert old_comm.id is self.comm.id

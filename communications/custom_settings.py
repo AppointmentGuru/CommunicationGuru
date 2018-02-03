@@ -60,7 +60,12 @@ ZOOM_BASE_URL = 'https://www.zoomconnect.com:443'
 ZOOM_API_TOKEN = os.environ.get('ZOOM_AUTH_TOKEN')
 ZOOM_EMAIL = 'tech@appointmentguru.co'
 
-SMS_BACKEND = os.environ.get('SMS_BACKEND')
+
+BACKENDS = {
+    'zoomconnect': 'services.backends.zoomconnect.ZoomSMSBackend'
+}
+
+SMS_BACKEND = BACKENDS[os.environ.get('SMS_BACKEND')]
 
 # EMAIL / MailGun
 

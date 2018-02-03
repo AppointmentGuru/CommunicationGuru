@@ -56,4 +56,9 @@ class ZoomSMSBackend:
 
     @staticmethod
     def get_id_from_payload(payload):
+        if 'status' not in payload:
+            tags = payload.get('dataField')
+            comm_id = [tag.split(':')[1] for tag in tags.split(',') if
+                       'msg' in tag][0]
+            return comm_id
         return payload['messageId']

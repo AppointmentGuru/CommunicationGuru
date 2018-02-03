@@ -58,6 +58,10 @@ class Email:
         status.save()
         return status
 
+    def get_id_from_payload(self, payload):
+        # TODO: Get Message ID
+        return payload.get('Message-Id')
+
 
 class GoogleActions:
 
