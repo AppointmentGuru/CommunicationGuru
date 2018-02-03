@@ -99,3 +99,34 @@ class CreateEmailCommunicationTestCase(TestCase):
         comm = Communication.objects.first()
         assert comm.owner == self.owner_id,\
             'Expected owner to be: "{}". got: "{}"'.format(self.owner_id, comm.owner)
+
+
+@override_settings(INCOMING_TOKEN='bfdb1add-2ba1-429b-bc6e-8e9f1c0784e7')
+class IncomingReplyTestCase(TestCase):
+
+    def setUp(self):
+        url = reverse('incoming_update', args=(
+            'bfdb1add-2ba1-429b-bc6e-8e9f1c0784e7',
+            'sms',
+            'reply',
+            'zoomconnect',
+        ))
+        self.response = self.client.post(url, data={})
+
+    def test_successful_oauth(self):
+        assert (self.responses.status_code == 200,
+                'Expected Status tp be: "200". got "{}"'.format(
+                    self.response.status_code
+                ))
+
+    def test_auth_token(self):
+        url = reverse('incoming_update', args=(
+            'bfdb1add-2ba1-429b-bc6e',
+            'sms',
+            'reply',
+            'zoomconnect',
+        ))
+        response = self.client.post(url, data={})
+        assert (response.status_code == 403,
+                'Expected Status to be: "403". got "{}"'.format(
+                    response.status_code))

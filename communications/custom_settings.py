@@ -7,6 +7,7 @@ def get_secret(secret_name, default=None):
     except FileNotFoundError:
         return os.environ.get(secret_name, default)
 
+
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", '').split(',')]
 
 # aws storage
@@ -59,7 +60,12 @@ ZOOM_BASE_URL = 'https://www.zoomconnect.com:443'
 ZOOM_API_TOKEN = os.environ.get('ZOOM_AUTH_TOKEN')
 ZOOM_EMAIL = 'tech@appointmentguru.co'
 
-SMS_BACKEND = os.environ.get('SMS_BACKEND')
+
+BACKENDS = {
+    'zoomconnect': 'services.backends.zoomconnect.ZoomSMSBackend'
+}
+
+SMS_BACKEND = BACKENDS[os.environ.get('SMS_BACKEND')]
 
 # EMAIL / MailGun
 
@@ -74,3 +80,4 @@ EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGri
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'False') == 'True'
+INCOMING_TOKEN = os.environ.get('INCOMING_TOKEN')

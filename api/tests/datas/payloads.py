@@ -41,3 +41,15 @@ MAILGUN_STATUS_UPDATE = {
     "signature": "d5a0a993051141fd814514a77626ecb40ec7ffb27e793766f6953c9a5b463c38",
     "body-plain": ""
 }
+
+ZOOMCONNECT_REPLY_PAYLOAD = {
+  "date": "201802031543",
+  "dataField": "msg:1",
+  "messageId": "5a75bc897736b6c1d340b68e",
+  "from": "+27832566533",
+  "to": "INF-WnW8d3c2tsHTQLaM",
+  "nonce-date": "20180203154838",
+  "message": "Another response",
+  "nonce": "d91017cb-5638-4e15-81b7-79824b53c7fc",
+  "checksum": "0b01a7a67be9f87514e09b7e5f337d761f20cffa"
+}

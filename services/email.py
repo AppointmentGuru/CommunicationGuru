@@ -4,6 +4,7 @@ from django.conf import settings
 from anymail.message import AnymailMessage
 import json, six
 
+
 class Email:
 
     def __init__(self, to, frm=settings.DEFAULT_FROM_EMAIL):
@@ -64,6 +65,10 @@ class Email:
         # create communication message
         #
         pass
+
+    def get_id_from_payload(self, payload):
+        # TODO: Get Message ID
+        return payload.get('Message-Id')
 
 class GoogleActions:
 

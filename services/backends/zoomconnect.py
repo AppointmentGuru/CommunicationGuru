@@ -6,6 +6,7 @@ import requests
 from django.conf import settings
 from api.models import CommunicationStatus, Communication
 
+
 class ZoomSMSBackend:
 
     def __init__(self):
@@ -68,4 +69,13 @@ class ZoomSMSBackend:
         print(url)
         print(params)
         print(headers)
-        return  requests.get(url, params=params, headers=headers)
+        return requests.get(url, params=params, headers=headers)
+
+    @staticmethod
+    def get_id_from_payload(payload):
+        if 'status' not in payload:
+            tags = payload.get('dataField')
+            comm_id = [tag.split(':')[1] for tag in tags.split(',') if
+                       'msg' in tag][0]
+            return comm_id
+        return payload['messageId']

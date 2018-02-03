@@ -9,6 +9,7 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
 
 from services.sms import SMS
+from services.email import Email
 import mistune
 
 from django.template import Context
@@ -28,6 +29,7 @@ TRANSPORTS = [
     # ('notification', 'Push Notification'),
 ]
 
+
 class CommunicationTemplate(models.Model):
 
     def __str__(self):
@@ -40,6 +42,7 @@ class CommunicationTemplate(models.Model):
     message = models.TextField(blank=True, null=True)
 
     template_base = models.CharField(max_length=255)
+
 
 class Communication(models.Model):
 
@@ -84,6 +87,22 @@ class Communication(models.Model):
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
+
+    cancel_signal = models.BooleanField(default=False)
+
+    @classmethod
+    def get_from_payload(cls, backend, transport, payload):
+        message_id = None
+        if transport == 'sms':
+            message_id = (SMS(settings.BACKENDS[backend])
+                          .get_id_from_payload(payload))
+        if transport == 'email':
+            message_id = (Email(settings.BACKENDS[backend])
+                          .get_id_from_payload(payload))
+        try:
+            return cls.objects.get(id=message_id)
+        except Communication.DoesNotExist:
+            return None
 
     @property
     def status_list(self):
@@ -158,6 +177,9 @@ class Communication(models.Model):
         status.raw_result = payload
         status.save()
         return status
+
+    def reply_received(self):
+        pass
 
 
 class CommunicationStatus(models.Model):
