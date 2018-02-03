@@ -5,6 +5,7 @@ from services.sms import SMS
 from api.models import Communication, CommunicationStatus
 import responses, json
 from .helpers import quick_create_sms
+from .datas import ZOOMCONNECT_STATUS_UPDATE
 # TODO: refactor to backends
 
 @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
@@ -86,22 +87,31 @@ class ZoomQuerySMSTestCase(TestCase):
 class ZoomStatusUpdateTestCase(TestCase):
 
     def setUp(self):
-        from .datas import ZOOMCONNECT_STATUS_UPDATE
         self.comm = quick_create_sms(ZOOMCONNECT_STATUS_UPDATE.get('messageId'))
         zc = ZoomSMSBackend()
         zc.update_status(ZOOMCONNECT_STATUS_UPDATE)
 
     def test_it_creates_communication_status(self):
-        self.assertIsInstance(
-            CommunicationStatus.objects.all().first(),
-            self.comm
-        )
+        #import ipdb; ipdb.set_trace()
+        self.assertIsInstance(CommunicationStatus.objects.all().first().communication, Communication)
+        self.assertEqual(CommunicationStatus.objects.count(), 1)
     
     def test_communication_status_is_attached_to_original_message(self):
-        pass
+        self.assertEqual(
+            CommunicationStatus.objects.all().first().communication,
+            self.comm
+        )
 
     def test_communication_status_has_correct_status(self):
-        pass
+        self.assertEqual(
+            CommunicationStatus.objects.all().first().status,
+            ZOOMCONNECT_STATUS_UPDATE['status']
+        )
+
+# class ZoomReplyUpdateTestCase(TestCase):
+
+#     def setUp(self):
+
         
 
     # def test_fetch(self):
