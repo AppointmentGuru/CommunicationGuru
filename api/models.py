@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Q
+
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
@@ -113,8 +115,14 @@ class Communication(models.Model):
         if transport == 'email':
             message_id = (Email(settings.BACKENDS[backend])
                           .get_id_from_payload(payload))
+
         try:
-            return cls.objects.get(id=message_id)
+            # normalize_message_id:
+            try:
+                int(message_id)
+                return cls.objects.get(id=message_id)
+            except:
+                return cls.objects.get(backend_message_id=message_id)
         except Communication.DoesNotExist:
             return None
 
