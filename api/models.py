@@ -46,19 +46,21 @@ class Communication(models.Model):
     def __str__(self):
         return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
 
-    # isOwner
+    related_communication = models.ForeignKey('Communication', blank=True, null=True)
+
     owner = models.CharField(max_length=100, blank=True, null=True)
     # appointment:123 client:345 user:
     # communicatoin/appointment/:id
     # tags = ArrayField
-    object_ids = ArrayField(models.CharField(max_length=100), default=[], blank=True, null=True)
+    object_ids = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
+    tags = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
+    channel = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
 
     # the object to which this lineitem is attached
     sender_email = models.EmailField(blank=True, null=True)
-
+    sender_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
     preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
 
-    recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_emails = ArrayField(models.EmailField(blank=True, null=True), blank=True, null=True, db_index=True)
     recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
