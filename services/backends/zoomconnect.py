@@ -59,8 +59,17 @@ class ZoomSMSBackend:
     def get_id_from_payload(self, payload):
         return payload['messageId']
 
-    def reply_received(self, payload):
-        CommunicationStatus.objects.create(raw_result=payload)
+    def reply_received(self, original_communications, payload):
+        original_comm = Communication.objects.filter(
+            backend_message_id=original_communications.backend_message_id
+        ).first()
+
+        comm = Communication()
+        comm.related_communication = original_comm
+        comm.short_message = payload.get('message')
+        comm.recipient_phone_number = payload.get('from')
+        comm.sender_phone_number = original_comm.sender_phone_number
+        comm.save()
 
     def search(self, params={}, **kwargs):
         url, credentials, headers = self._get_url('/v1/messages/all')
