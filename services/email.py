@@ -57,6 +57,13 @@ class Email:
         status.save()
         return status
 
+    def reply_received(self, payload):
+        """
+        Handle a reply to an incoming email
+        """
+        # create communication message
+        #
+        pass
 
 class GoogleActions:
 

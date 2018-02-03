@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 from django.core import mail
 from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
+from .testutils import quick_create_sms
 import json
 
 class CommunicationTestCase(TestCase):
@@ -59,6 +60,16 @@ class ModelAppliesTemplateTestCase(TestCase):
         res = self.comms.as_json_string
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
+
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class ModelSendsSmsTestCase(TestCase):
+
+    def setUp(self):
+        quick_create_sms()
+
+    def test_is_ok(self):
+        pass
+
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelSendsEmailWithAttachmentsTestCase(TestCase):

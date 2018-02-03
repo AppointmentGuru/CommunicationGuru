@@ -33,6 +33,7 @@ class ZoomSMSBackend:
         tags = kwargs.get('tags', None)
         campaign = kwargs.get('campaign', None)
         if tags is not None:
+            if isinstance(tags, list): tags = (',').join(tags)
             data["dataField"] = tags[0:50]
         if campaign is not None:
             data['campaign'] = campaign

@@ -112,15 +112,18 @@ class Communication(models.Model):
                 self.save()
             return self
 
-    def send(self):
+    def send(self, tags=[]):
 
         # TODO: only send if send_date is now / in the past
 
         if self.preferred_transport == 'sms':
             sms = SMS()
+            tags.append('msg:{}'.format(self.id))
+            extra_data = {'tags': tags}
             result = sms.send(
                 self.short_message,
-                self.recipient_phone_number.as_e164)
+                self.recipient_phone_number.as_e164,
+                **extra_data)
             return result
             # return sms.save(self, result)
 
