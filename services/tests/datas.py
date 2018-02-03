@@ -37,7 +37,7 @@ ZOOMCONNECT_STATUS_UPDATE = {
   "checksum": "571df5cafaab4fde15de429435ce7537a3ae5259"
 }
 
-ZOOMCONNECT_CONNECT_REPLY = {
+ZOOMCONNECT_REPLY = {
   "date": "201802031121",
   "messageId": "5a757f2a7736b6c1d340a1a4",
   "from": "+27832566533",
