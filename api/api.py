@@ -123,7 +123,9 @@ def backends_messages(request, transport):
 @decorators.permission_classes((permissions.AllowAny,))
 def incoming(request, token, transport, update_type, backend):
     """
-    Hits the
+    NOTE: I think we actually need to split incoming into:
+    1. incoming_status_update
+    2. incoming_reply
     """
     if token != settings.INCOMING_TOKEN:
         raise exceptions.AuthenticationFailed('Invalid or Missing Token')
@@ -135,7 +137,12 @@ def incoming(request, token, transport, update_type, backend):
     method_to_call = update_type_mapper.get(update_type)
     payload = request.data
     instance = Communication.get_from_payload(backend, transport, payload)
-    getattr(instance, method_to_call)(payload)
+    method_args = {
+        "original_communication": instance,
+        "communication": instance,
+        "payload": payload
+    }
+    getattr(instance, method_to_call)(**method_args)
     status_code = 200
     return JsonResponse({}, status=status_code)
 

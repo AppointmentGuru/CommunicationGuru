@@ -27,16 +27,17 @@ class MockSMSBackend:
         return {'message': message, 'to': to}
 
     @staticmethod
-    def get_id_from_payload(payload):
-        pass
+    def get_id_from_payload(payload, always_return_id=1):
+        return always_return_id
 
-    def update_status(self, payload):
+    def update_status(self, communication, payload, **kwargs):
         return {
+            'communication': communication,
             'payload': payload
         }
 
-    def reply_received(self, original_message, payload):
+    def reply_received(self, original_communication, payload, *args, **kwargs):
         return {
-            'original_message': original_message,
+            'original_communication': original_communication,
             'payload': payload
         }

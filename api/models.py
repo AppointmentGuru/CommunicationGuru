@@ -108,8 +108,8 @@ class Communication(models.Model):
     def get_from_payload(cls, backend, transport, payload):
         message_id = None
         if transport == 'sms':
-            message_id = (SMS(settings.BACKENDS[backend])
-                          .get_id_from_payload(payload))
+            message_id = SMS(settings.BACKENDS[backend])\
+                            .get_id_from_payload(payload)
         if transport == 'email':
             message_id = (Email(settings.BACKENDS[backend])
                           .get_id_from_payload(payload))
@@ -170,7 +170,7 @@ class Communication(models.Model):
     def send_html_email(self, subject, plaintext, html):
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
 
-    def status_update(self, payload):
+    def status_update(self, communication, payload, **kwargs):
 
         # normalize:
         if isinstance(payload, six.string_types):
@@ -192,7 +192,7 @@ class Communication(models.Model):
         status.save()
         return status
 
-    def reply_received(self):
+    def reply_received(self, original_communication, payload, **kwargs):
         pass
 
 

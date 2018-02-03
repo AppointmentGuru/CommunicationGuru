@@ -105,7 +105,10 @@ class CommunicationTestCase(TestCase):
         assert len(status_list) == 5
 
 
-class CommunicationGetFromPayloadTestCase(TestCase):
+class CommunicationGetZoomConnectFromPayloadTestCase(TestCase):
+    """
+    Refactor: I guess this should really be in test_zoombackend ?
+    """
 
     def setUp(self):
         self.comm = Communication()
@@ -118,10 +121,29 @@ class CommunicationGetFromPayloadTestCase(TestCase):
         self.comm.owner = '1'
         self.comm.save()
 
-    def test_get_from_payload(self):
-        old_comm = Communication().get_from_payload(
+        self.status_payload = {
+            "messageId": "5a757f2a7736b6c1d340a1a4",
+            "status": 'DELIVERED',
+        }
+        self.reply_payload = {
+            "dataField": "msg:{}".format(self.comm.id)
+        }
+
+    def test_get_from_status_payload(self):
+        '''
+        this doesnt pass
+        '''
+        old_comm = Communication.get_from_payload(
             'zoomconnect',
             'sms',
-            ZOOMCONNECT_REPLY_PAYLOAD
+            self.status_payload
+        )
+        assert old_comm.id is self.comm.id
+
+    def test_get_from_status_payload(self):
+        old_comm = Communication.get_from_payload(
+            'zoomconnect',
+            'sms',
+            self.status_payload
         )
         assert old_comm.id is self.comm.id

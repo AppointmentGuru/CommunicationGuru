@@ -1,9 +1,9 @@
 from django.test import TestCase, override_settings
 import json, responses
 
-from .datas.payloads import TWILLIO_SMS_SENT, MAILGUN_STATUS_UPDATE
+from .datas.payloads import TWILLIO_SMS_SENT, MAILGUN_STATUS_UPDATE, ZOOMCONNECT_REPLY_PAYLOAD
 from ..models import CommunicationStatus, Communication
-from .testutils import assert_response, get_proxy_headers
+from .testutils import assert_response, get_proxy_headers, quick_create_sms
 from django.urls import reverse
 
 import unittest
@@ -101,6 +101,7 @@ class CreateEmailCommunicationTestCase(TestCase):
             'Expected owner to be: "{}". got: "{}"'.format(self.owner_id, comm.owner)
 
 
+@override_settings(SMS_BACKEND='services.backends.mocksms.MockSMSBackend')
 @override_settings(INCOMING_TOKEN='bfdb1add-2ba1-429b-bc6e-8e9f1c0784e7')
 class IncomingReplyTestCase(TestCase):
 
@@ -111,13 +112,15 @@ class IncomingReplyTestCase(TestCase):
             'reply',
             'zoomconnect',
         ))
-        self.response = self.client.post(url, data={})
+        original_sms = quick_create_sms()
+        data = ZOOMCONNECT_REPLY_PAYLOAD.copy()
+        data.update({
+            "dataField": "msg:{}".format(original_sms.id)
+        })
+        self.response = self.client.post(url, data=data)
 
     def test_successful_oauth(self):
-        assert (self.responses.status_code == 200,
-                'Expected Status tp be: "200". got "{}"'.format(
-                    self.response.status_code
-                ))
+        assert_response(self.response)
 
     def test_auth_token(self):
         url = reverse('incoming_update', args=(

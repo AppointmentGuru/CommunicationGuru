@@ -62,9 +62,10 @@ ZOOM_EMAIL = 'tech@appointmentguru.co'
 
 
 BACKENDS = {
-    'zoomconnect': 'services.backends.zoomconnect.ZoomSMSBackend'
+    'zoomconnect': 'services.backends.zoomconnect.ZoomSMSBackend',
+    'mocksms': 'services.backends.mocksms.MockSMSBackend',
+    'twilio': 'services.backends.twilio.TwillioBackend',
 }
-
 SMS_BACKEND = BACKENDS[os.environ.get('SMS_BACKEND')]
 
 # EMAIL / MailGun

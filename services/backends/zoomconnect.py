@@ -48,28 +48,19 @@ class ZoomSMSBackend:
         url, params, headers = self._get_url('/v1/messages/{}'.format(id))
         return requests.get(url, params=params, headers=headers)
 
-    def update_status(self, payload):
-        message_id = self.get_id_from_payload(payload)
-        comm = Communication.objects.get(backend_message_id=message_id)
+    def update_status(self, communication, payload, **kwargs):
         status = CommunicationStatus()
-        status.communication = comm
+        status.communication = communication
         status.raw_result = payload
         status.status = payload['status']
         status.save()
 
-    def get_id_from_payload(self, payload):
-        return payload['messageId']
-
-    def reply_received(self, original_communications, payload):
-        original_comm = Communication.objects.filter(
-            backend_message_id=original_communications.backend_message_id
-        ).first()
-
+    def reply_received(self, original_communication, payload, *args, **kwargs):
         comm = Communication()
-        comm.related_communication = original_comm
+        comm.related_communication = original_communication
         comm.short_message = payload.get('message')
         comm.recipient_phone_number = payload.get('from')
-        comm.sender_phone_number = original_comm.sender_phone_number
+        comm.sender_phone_number = original_communication.sender_phone_number
         comm.save()
 
     def search(self, params={}, **kwargs):
@@ -82,9 +73,12 @@ class ZoomSMSBackend:
 
     @staticmethod
     def get_id_from_payload(payload):
-        if 'status' not in payload:
-            tags = payload.get('dataField')
-            comm_id = [tag.split(':')[1] for tag in tags.split(',') if
-                       'msg' in tag][0]
-            return comm_id
-        return payload['messageId']
+        is_status_message = 'status' in payload
+        if not is_status_message: # it's a reply:
+            tags = payload.get('dataField', None)
+            if tags is not None:
+                comm_id = [tag.split(':')[1] \
+                            for tag in tags.split(',')\
+                            if 'msg' in tag][0]
+                return comm_id
+        return payload.get('messageId', None)

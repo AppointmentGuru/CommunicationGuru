@@ -2,7 +2,7 @@ from services.backends.zoomconnect import ZoomSMSBackend
 from api.models import Communication, CommunicationStatus
 from services.sms import SMS
 
-from .datas import ZOOMCONNECT_REPLY_PAYLOAD, ZOOMCONNECT_STATUS_UPDATE
+from .datas import ZOOMCONNECT_REPLY, ZOOMCONNECT_STATUS_UPDATE
 from .helpers import quick_create_sms
 
 from django.test import TestCase, override_settings
@@ -97,7 +97,7 @@ class ZoomStatusUpdateTestCase(TestCase):
     def setUp(self):
         self.comm = quick_create_sms(ZOOMCONNECT_STATUS_UPDATE.get('messageId'))
         zc = ZoomSMSBackend()
-        zc.update_status(ZOOMCONNECT_STATUS_UPDATE)
+        zc.update_status(self.comm, ZOOMCONNECT_STATUS_UPDATE)
 
     def test_it_creates_communication_status(self):
         self.assertIsInstance(CommunicationStatus.objects.all().first().communication, Communication)
