@@ -29,3 +29,14 @@ class MockSMSBackend:
     @staticmethod
     def get_id_from_payload(payload):
         pass
+
+    def update_status(self, payload):
+        return {
+            'payload': payload
+        }
+
+    def reply_received(self, original_message, payload):
+        return {
+            'original_message': original_message,
+            'payload': payload
+        }

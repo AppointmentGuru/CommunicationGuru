@@ -91,6 +91,20 @@ class Communication(models.Model):
     cancel_signal = models.BooleanField(default=False)
 
     @classmethod
+    def sms(cls, owner, from_number, to_number, message, tags=[], object_ids=[]):
+        '''
+        Creates a message
+        '''
+        cls.owner = owner
+        cls.sender_phone_number = from_number
+        cls.recipient_phone_number = to_number
+        cls.short_message = message
+        cls.tags = tags
+        cls.object_ids = object_ids
+        cls.preferred_transport = 'sms'
+        cls.save()
+
+    @classmethod
     def get_from_payload(cls, backend, transport, payload):
         message_id = None
         if transport == 'sms':

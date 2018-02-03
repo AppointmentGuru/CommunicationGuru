@@ -8,6 +8,7 @@ def communication_pre_save(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Communication, dispatch_uid="api.communication.communication_post_save")
 def communication_post_save(sender, instance, created, **kwargs):
+    if instance.cancel_signal is True: return
 
     if created:
         # only send on creation (otherwise it will loop)

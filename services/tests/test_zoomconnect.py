@@ -1,10 +1,15 @@
 from services.backends.zoomconnect import ZoomSMSBackend
-from django.test import TestCase, override_settings
-from .datas import ZOOMCONNECT_REPLY_PAYLOAD
-from django.conf import settings
+from api.models import Communication, CommunicationStatus
 from services.sms import SMS
-import responses
-import json
+
+from .datas import ZOOMCONNECT_REPLY_PAYLOAD, ZOOMCONNECT_STATUS_UPDATE
+from .helpers import quick_create_sms
+
+from django.test import TestCase, override_settings
+from django.conf import settings
+
+import responses, json
+
 # TODO: refactor to backends
 
 
@@ -97,7 +102,7 @@ class ZoomStatusUpdateTestCase(TestCase):
         #import ipdb; ipdb.set_trace()
         self.assertIsInstance(CommunicationStatus.objects.all().first().communication, Communication)
         self.assertEqual(CommunicationStatus.objects.count(), 1)
-    
+
     def test_communication_status_is_attached_to_original_message(self):
         self.assertEqual(
             CommunicationStatus.objects.all().first().communication,
@@ -114,7 +119,7 @@ class ZoomStatusUpdateTestCase(TestCase):
 
 #     def setUp(self):
 
-        
+
 
     # def test_fetch(self):
     #     pass

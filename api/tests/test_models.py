@@ -2,22 +2,13 @@
 from __future__ import unicode_literals
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 from .datas.payloads import ZOOMCONNECT_REPLY_PAYLOAD
+from .testutils import quick_create_sms
+
 from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.core import mail
+
 import json
-
-
-class CommunicationTestCase(TestCase):
-
-    def test_minimal_sms_fields(self):
-
-        comm = Communication()
-        comm.short_message = 'testing'
-        comm.owner = '1'
-        comm.object_ids = 'user:1'
-        comm.recipient_phone_number = '+27832566533'
-        comm.save()
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
@@ -62,14 +53,14 @@ class ModelAppliesTemplateTestCase(TestCase):
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
 
-@override_settings(CELERY_ALWAYS_EAGER=True)
-class ModelSendsSmsTestCase(TestCase):
+# @override_settings(CELERY_ALWAYS_EAGER=True)
+# class ModelSendsSmsTestCase(TestCase):
 
-    def setUp(self):
-        quick_create_sms()
+#     def setUp(self):
+#         quick_create_sms()
 
-    def test_is_ok(self):
-        pass
+#     def test_is_ok(self):
+#         pass
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
