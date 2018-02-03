@@ -1,9 +1,12 @@
-from django.test import TestCase, override_settings
-from django.conf import settings
 from services.backends.zoomconnect import ZoomSMSBackend
+from django.test import TestCase, override_settings
+from .datas import ZOOMCONNECT_REPLY_PAYLOAD
+from django.conf import settings
 from services.sms import SMS
-import responses, json
+import responses
+import json
 # TODO: refactor to backends
+
 
 @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
 @override_settings(ZOOM_EMAIL='joe@soap.com')
@@ -15,7 +18,7 @@ class ZoomSendSMSTestCase(TestCase):
         responses.add(
             responses.POST,
             'https://www.zoomconnect.com:443/app/api/rest/v1/sms/send?token=1234&email=joe@soap.com',
-            json = {"messageId": "456", "error": None}
+            json={"messageId": "456", "error": None}
         )
 
         return self.sms.send("testing testing 123", "+27123456789")
@@ -34,6 +37,7 @@ class ZoomSendSMSTestCase(TestCase):
         headers = responses.calls[0].request.headers
         assert headers.get('Content-type') == 'application/json'
         assert headers.get('Accept') == 'application/json'
+
 
 @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
 @override_settings(ZOOM_EMAIL='joe@soap.com')
@@ -56,6 +60,7 @@ class ZoomTestBackendTestCase(TestCase):
             '+27832566533',
             tags='app:310,pra:684,cli:685,pro:12345',
             campaign='test')
+
 
 @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
 @override_settings(ZOOM_EMAIL='joe@soap.com')
@@ -84,3 +89,10 @@ class ZoomQuerySMSTestCase(TestCase):
     # def test_fetch(self):
     #     pass
     #     # self.sms.fetch(id)
+
+
+class ZoomConnectGetIdByPayloadTestCase(TestCase):
+
+    def test_get_id_by_payload(self):
+        sms_id = SMS().get_id_from_payload(ZOOMCONNECT_REPLY_PAYLOAD)
+        assert sms_id == '5a757f2a7736b6c1d340a1a4'

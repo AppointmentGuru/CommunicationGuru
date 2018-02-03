@@ -4,6 +4,7 @@ from django.conf import settings
 from anymail.message import AnymailMessage
 import json, six
 
+
 class Email:
 
     def __init__(self, to, frm=settings.DEFAULT_FROM_EMAIL):

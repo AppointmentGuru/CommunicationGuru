@@ -7,6 +7,7 @@ def get_secret(secret_name, default=None):
     except FileNotFoundError:
         return os.environ.get(secret_name, default)
 
+
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", '').split(',')]
 
 # aws storage
@@ -74,3 +75,4 @@ EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGri
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'False') == 'True'
+INCOMING_TOKEN = os.environ.get('INCOMING_TOKEN')

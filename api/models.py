@@ -28,6 +28,7 @@ TRANSPORTS = [
     # ('notification', 'Push Notification'),
 ]
 
+
 class CommunicationTemplate(models.Model):
 
     def __str__(self):
@@ -40,6 +41,7 @@ class CommunicationTemplate(models.Model):
     message = models.TextField(blank=True, null=True)
 
     template_base = models.CharField(max_length=255)
+
 
 class Communication(models.Model):
 
@@ -82,6 +84,12 @@ class Communication(models.Model):
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
+
+    cancel_signal = models.BooleanField(default=False)
+
+    @classmethod
+    def get_from_payload(cls, payload):
+        return cls
 
     @property
     def status_list(self):

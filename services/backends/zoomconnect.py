@@ -5,6 +5,7 @@ A backend for sending smses using: https://www.zoomconnect.com
 import requests
 from django.conf import settings
 
+
 class ZoomSMSBackend:
 
     def __init__(self):
@@ -51,4 +52,8 @@ class ZoomSMSBackend:
         print(url)
         print(params)
         print(headers)
-        return  requests.get(url, params=params, headers=headers)
+        return requests.get(url, params=params, headers=headers)
+
+    @staticmethod
+    def get_id_from_payload(payload):
+        return payload['messageId']

@@ -1,5 +1,5 @@
 class SomeObject:
-    foo='bar'
+  foo='bar'
 
 MAILGUN_EMAIL = {
   "X-Mailgun-Sid": "WyI3MDlkYSIsICJpbmZvQDM4LmNvLnphIiwgImY0OWQ0MCJd",
@@ -25,4 +25,15 @@ MAILGUN_EMAIL_NO_MESSAGE_ID = {
   "token": "24f2ce97c240bb13e6297faff35da5726fee48c754d7523679",
   "signature": "dd095fd7117542b376c4800142a020197e924224e34630c5bf9bcd674695faf8",
   "body-plain": ""
+}
+
+ZOOMCONNECT_REPLY_PAYLOAD = {
+  "date": "201802031121",
+  "messageId": "5a757f2a7736b6c1d340a1a4",
+  "from": "+27832566533",
+  "to": "INF-WnV8e3c2tsHTQKDb",
+  "nonce-date": "20180203112647",
+  "message": "Testing again. ",
+  "nonce": "701ed8ab-ff84-4f49-a17f-79b293955c75",
+  "checksum": "f4fca6b5bdbc1cfbf54c783b1db1862d5f5b3316"
 }

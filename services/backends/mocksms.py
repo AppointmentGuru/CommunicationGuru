@@ -25,3 +25,7 @@ class MockSMSBackend:
 
     def send(self, message, to, **kwargs):
         return {'message': message, 'to': to}
+
+    @staticmethod
+    def get_id_from_payload(payload):
+        pass

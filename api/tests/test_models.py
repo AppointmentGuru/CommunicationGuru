@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 import json
 
+
 class CommunicationTestCase(TestCase):
 
     def test_minimal_sms_fields(self):
@@ -100,3 +101,17 @@ class CommunicationTestCase(TestCase):
         status_list = self.comm.status_list
         assert len(status_list) == 5
 
+
+class CommunicationGetFromPayloadTestCase(TestCase):
+
+    def setUp(self):
+        self.comm = Communication()
+        self.comm.short_message = 'testing'
+        self.comm.owner = '1'
+        self.comm.object_ids = 'user:1'
+        self.comm.recipient_phone_number = '+27832566533'
+        self.comm.backend_message_id =
+        self.comm.cancel_signal = True
+        self.comm.save()
+
+    def test_get_from_payload(self):

@@ -1,32 +1,37 @@
-from rest_framework import \
-    decorators,\
-    authentication,\
-    permissions,\
-    routers,\
-    viewsets,\
-    filters
-from django.http import HttpResponse, JsonResponse
+from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
+from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
+from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
+from django.http import HttpResponse, JsonResponse
+from .mixins import MultiSerializerMixin
 from slackclient import SlackClient
-
+from .models import Communication
+from django.conf import settings
 from services.email import Email
 from services.sms import SMS
-
-from .models import Communication
-from .mixins import MultiSerializerMixin
-from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
-from .diagnostics import \
-    db_connected,\
-    celery_working,\
-    rabbit_is_up,\
-    failed_tasks_count
-from .serializers import \
-    CommunicationListSerializer,\
+from rest_framework import (
+    authentication,
+    permissions,
+    decorators,
+    exceptions,
+    viewsets,
+    routers,
+    filters,
+)
+from .diagnostics import (
+    failed_tasks_count,
+    celery_working,
+    db_connected,
+    rabbit_is_up
+)
+from .serializers import (
+    CommunicationListSerializer,
     CommunicationDetailSerializer
+)
+import requests
+import json
+import os
 
-from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
-import os, json, requests
 
 @csrf_exempt
 @decorators.api_view(['GET'])
@@ -48,6 +53,7 @@ def health(request):
     }
 
     return JsonResponse(result)
+
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
@@ -85,6 +91,7 @@ def slack_webhook(request):
 
     return HttpResponse('ok')
 
+
 @csrf_exempt
 @decorators.api_view(['GET'])
 @decorators.permission_classes((permissions.IsAuthenticated,))
@@ -110,11 +117,35 @@ def backends_messages(request, transport):
         status_code = 403
     return JsonResponse(data, status=status_code)
 
+
+@csrf_exempt
+@decorators.api_view(['POST'])
+@decorators.permission_classes((permissions.AllowAny,))
+def incoming(request, token, transport, update_type, backend):
+    """
+    Hits the
+    """
+    if token != settings.INCOMING_TOKEN:
+        raise exceptions.AuthenticationFailed('Invalid or Missing Token')
+
+    update_type_mapper = {
+        'reply': 'reply_received',
+        'status': 'update_status'
+    }
+    method_to_call = update_type_mapper.get(update_type)
+    payload = request.data
+    instance = Communication.get_from_payload(payload)
+    getattr(instance, method_to_call)(payload)
+    status_code = 200
+    return JsonResponse({}, status=status_code)
+
+
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def incoming_email(request):
     pass
+
 
 class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
 
