@@ -55,7 +55,7 @@ class ZoomSMSBackend:
         status = CommunicationStatus()
         status.communication = communication
         status.raw_result = payload
-        status.status = payload['status']
+        status.status = payload.get('status')
         status.save()
 
     def reply_received(self, original_communication, payload, *args, **kwargs):

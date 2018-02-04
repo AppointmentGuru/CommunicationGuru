@@ -14,19 +14,21 @@ import json, responses
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class CommunicationModelCreatedTestCase(TestCase):
 
-    def setUp(self):
-        self.sms = quick_create_sms()
-
     def test_it_sets_the_tags_to_message(self):
-        self.sms.refresh_from_db()
-        assert self.sms.tags[0] == 'msg:1'
+        sms = quick_create_sms()
+        expected = 'msg:{}'.format(sms.id)
+        assert sms.tags[0] == expected,\
+            'Expected {} to be: {}'.format(sms.tags[0], expected)
 
     def test_it_adds_if_existing_tags(self):
         sms = quick_create_sms(with_save=False)
         sms.tags = ['foo', 'bar']
         sms.save()
         sms.refresh_from_db()
-        assert (',').join(sms.tags) == 'foo,bar,msg:2'
+        expected_message = 'foo,bar,msg:{}'.format(sms.id)
+        tags = (',').join(sms.tags)
+        assert tags == expected_message,\
+            'Expected {} to be: {}'.format(tags, expected_message)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
