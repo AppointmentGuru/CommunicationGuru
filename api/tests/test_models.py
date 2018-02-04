@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 from .datas.payloads import ZOOMCONNECT_REPLY_PAYLOAD
-from .testutils import quick_create_sms
+from .testutils import quick_create_sms, quick_create_email
 
 from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
@@ -94,7 +94,7 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
         # todo .. verify that it's saving the response ..
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
-class ModelSendsSMSTestCase(TestCase):
+class CommunicationSendsSMSTestCase(TestCase):
 
     def setUp(self):
         pass
@@ -116,6 +116,49 @@ class ModelSendsSMSTestCase(TestCase):
         assert sms.backend_used == 'services.backends.zoomconnect.ZoomSMSBackend'
         assert sms.backend_message_id == '5a76e8167736b6c1d341643e'
         assert sms.backend_result.get('messageId') == '5a76e8167736b6c1d341643e'
+
+
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class CommunicationStatusUpdateTestCase(TestCase):
+
+    def setUp(self):
+        pass
+
+    @responses.activate
+    @override_settings(ZOOM_BASE_URL='https://www.zoomconnect.com:443')
+    @override_settings(ZOOM_API_TOKEN='1234')
+    @override_settings(ZOOM_EMAIL='joe@soap.com')
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    def test_zoomconnect_update_status(self):
+
+        responses.add(
+            responses.POST,
+            'https://www.zoomconnect.com:443/app/api/rest/v1/sms/send',
+            json = {'messageId': '5a76e8167736b6c1d341643e', 'error': None}
+        )
+
+        comm = quick_create_sms()
+        status_update_payload = {
+            "dataField": "msg:{}".format(comm.id),
+            "messageId": "5a757c7b7736b6c1d340a0db",
+            "status": "DELIVERED",
+        }
+        comm.update_status(status_update_payload)
+        status = CommunicationStatus.objects.filter(communication_id=comm.id).first()
+
+        assert status.status == 'DELIVERED'
+
+    def test_email_update_status(self):
+        comm = quick_create_email()
+        comm.refresh_from_db()
+        update_status_payload = {
+            "event": "delivered"
+        }
+        comm.update_status(update_status_payload)
+
+        status = CommunicationStatus.objects.filter(communication_id=comm.id).first()
+        assert status.status == 'delivered'
+
 
 class CommunicationGetZoomConnectFromPayloadTestCase(TestCase):
     """

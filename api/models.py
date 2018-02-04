@@ -13,7 +13,7 @@ from rest_framework import renderers
 
 from services.sms import SMS
 from services.email import Email
-import mistune
+import mistune, six
 
 from django.template import Context
 from django.template import Template
@@ -160,6 +160,11 @@ class Communication(models.Model):
         '''
         Returns the backend object associated with this message, None if no backend found
         '''
+        if self.preferred_transport == 'email':
+            return import_string('services.email.Email')(
+                to=self.recipient_emails,
+                frm=self.sender_email)
+
         if self.backend_used is not None:
             return import_string(self.backend_used)()
 
@@ -190,30 +195,15 @@ class Communication(models.Model):
             from .tasks import send_email
             return send_email.delay(self.as_json_string)
 
-    def status_update(self, payload, **kwargs):
+    def update_status(self, payload, **kwargs):
 
         # normalize:
         if isinstance(payload, six.string_types):
             payload = json.loads(payload)
 
         backend = self.get_backend()
-        backend.status_update(self, payload)
+        return backend.update_status(self, payload)
 
-        # status = CommunicationStatus()
-
-        # message_id = payload.get('Message-Id')
-        # if message_id is not None:
-        #     try:
-        #         comm = Communication.objects.get(backend_message_id=message_id)
-        #         status.communication = comm
-        #     except Communication.DoesNotExist:
-        #         pass
-        # status.status = payload.get('event')
-        # status.save()
-
-        # status.raw_result = payload
-        # status.save()
-        # return status
 
     def reply_received(self, payload, **kwargs):
         if isinstance(payload, six.string_types):

@@ -13,6 +13,19 @@ def quick_create_sms(with_save=True):
         comm.save()
     return comm
 
+def quick_create_email(with_save=True):
+    comm = Communication()
+    comm.owner = '1'
+    comm.object_ids = ['user:1']
+    comm.recipient_emails = ['joe@soap.com']
+    comm.sender_email = 'jane@soap.com'
+    comm.subject = 'testing'
+    comm.message = 'this is a test'
+    comm.preferred_transport = 'email'
+    if with_save:
+        comm.save()
+    return comm
+
 def assert_response(response, expected_status=200):
     assert response.status_code == expected_status, \
         'Expected status: {}. Got: {}. {}'.format(expected_status, response.status_code, response.content)
