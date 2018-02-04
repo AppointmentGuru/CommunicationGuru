@@ -8,7 +8,17 @@ from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 
-import json
+import json, responses
+
+@override_settings(SMS_BACKEND='services.backends.mocksms.MockSMSBackend')
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class CommunicationModelCreatedTestCase(TestCase):
+
+    def setUp(self):
+        self.sms = quick_create_sms()
+
+    def test_it_adds_tags_to_message(self):
+        pass
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
@@ -17,7 +27,6 @@ class ModelAppliesTemplateTestCase(TestCase):
     def setUp(self):
 
         self.user = get_user_model().objects.create_user(username='joe')
-
         data = {
             "owner": self.user,
             "subject": "hi {{first_name}}",
@@ -53,16 +62,6 @@ class ModelAppliesTemplateTestCase(TestCase):
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
 
-# @override_settings(CELERY_ALWAYS_EAGER=True)
-# class ModelSendsSmsTestCase(TestCase):
-
-#     def setUp(self):
-#         quick_create_sms()
-
-#     def test_is_ok(self):
-#         pass
-
-
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelSendsEmailWithAttachmentsTestCase(TestCase):
 
@@ -84,26 +83,29 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
         self.comm.refresh_from_db()
         # todo .. verify that it's saving the response ..
 
-
-class CommunicationTestCase(TestCase):
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class ModelSendsSMSTestCase(TestCase):
 
     def setUp(self):
-        comm = Communication()
-        comm.save()
+        pass
 
-        for x in range(0,5):
-            stat = CommunicationStatus()
-            stat.status = str(x)
-            stat.communication = comm
-            stat.save()
+    @responses.activate
+    @override_settings(ZOOM_BASE_URL='https://www.zoomconnect.com:443')
+    @override_settings(ZOOM_API_TOKEN='1234')
+    @override_settings(ZOOM_EMAIL='joe@soap.com')
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    def test_sets_zoom_connect_backend_details(self):
 
-        self.comm = comm
+        responses.add(
+            responses.POST,
+            'https://www.zoomconnect.com:443/app/api/rest/v1/sms/send',
+            json = {'messageId': '5a76e8167736b6c1d341643e', 'error': None}
+        )
 
-    def test_status_list(self):
-
-        status_list = self.comm.status_list
-        assert len(status_list) == 5
-
+        sms = quick_create_sms()
+        assert sms.backend_used == 'services.backends.zoomconnect.ZoomSMSBackend'
+        assert sms.backend_message_id == '5a76e8167736b6c1d341643e'
+        assert sms.backend_result.get('messageId') == '5a76e8167736b6c1d341643e'
 
 class CommunicationGetZoomConnectFromPayloadTestCase(TestCase):
     """

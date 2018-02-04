@@ -4,6 +4,9 @@ from django.conf import settings
 
 
 class SMS:
+    '''
+    Deprecated - use Communication model
+    '''
 
     def __init__(self, backend=None):
         if not backend:

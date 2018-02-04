@@ -42,7 +42,10 @@ class ZoomSMSBackend:
         response = requests.post(url, json=data, params=params, headers=headers)
         if response.status_code > 201:
             raise Exception(response.content)
-        return response.content
+
+        id = response.json().get('messageId')
+        data = response.json()
+        return (id, data)
 
     def fetch(self, id, **kwargs):
         url, params, headers = self._get_url('/v1/messages/{}'.format(id))

@@ -23,6 +23,23 @@ message = Communication.email(to='+27..', from='+27..', message, tags=[])
 
 `POST /incoming/:transport/:backend/status/`
 
+**What happens**
+
+```
+comm = Communication.get_from_payload(backend, transport, payload)
+comm.update_status(payload)
+
+comm.reply_received(payload)
+```
+
+Internally this does:
+
+```
+# because the communication knows about it's backend
+comm.get_backend().update_status(self, payload)
+comm.get_backend().reply_received(self, payload)
+```
+
 e.g:
 
 `POST /incoming/email/mailgun/status`
@@ -56,7 +73,7 @@ class MyAwesomeBackend:
         Send a message
         """
 
-    def update_status(self, payload, **kwargs):
+    def update_status(self, communication, payload, **kwargs):
         """
         Given a status update payload, update the message status
         """
