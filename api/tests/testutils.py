@@ -2,14 +2,15 @@
 # FAKE = Factory.create()
 from ..models import Communication
 
-def quick_create_sms():
+def quick_create_sms(with_save=True):
     comm = Communication()
     comm.recipient_phone_number = '+27832566533'
     comm.owner = '1'
     comm.object_ids = ['user:1']
     comm.short_message = 'testing'
     comm.preferred_transport = 'sms'
-    comm.save()
+    if with_save:
+        comm.save()
     return comm
 
 def assert_response(response, expected_status=200):
