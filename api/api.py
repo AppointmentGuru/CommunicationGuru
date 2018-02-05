@@ -79,14 +79,16 @@ def slack_webhook(request):
     message = """
 `POST`:
 ```{}```""".format(json.dumps(request.data, indent=2))
-    res = slack_client.api_call("chat.postMessage", channel=channel, text=message)
+    res = slack_client.api_call("chat.postMessage", channel=channel,
+                                text=message)
     print(res)
 
     if len(request.GET.dict().items()) > 0:
         message = """
     `GET`:
     ```{}```""".format(json.dumps(request.GET.dict(), indent=2))
-        res = slack_client.api_call("chat.postMessage", channel=channel, text=message)
+        res = slack_client.api_call("chat.postMessage", channel=channel,
+                                    text=message)
         print(res)
 
     return HttpResponse('ok')
@@ -112,7 +114,8 @@ def backends_messages(request, transport):
         data = SMS().search(params).json()
     except AssertionError:
         data = {
-            'message': 'Sorry, the current backend does not support searching for SMSes'
+            'message': ('Sorry, the current backend does not support searching'
+                        ' for SMSes')
         }
         status_code = 403
     return JsonResponse(data, status=status_code)
@@ -135,8 +138,11 @@ def incoming(request, token, transport, update_type, backend):
     method_to_call = update_type_mapper.get(update_type)
     payload = request.data
     instance = Communication.get_from_payload(backend, transport, payload)
-    getattr(instance, method_to_call)(payload)
-    status_code = 200
+    if instance is not None:
+        getattr(instance, method_to_call)(payload)
+        status_code = 200
+    else:
+        status_code = 404
     return JsonResponse({}, status=status_code)
 
 
@@ -169,6 +175,7 @@ class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
         ObjectOverlapFilterBackend)
 
     ordering = ('-id',)
+
 
 router = routers.DefaultRouter()
 router.register(r'communications', CommunicationViewSet)
