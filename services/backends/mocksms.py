@@ -17,6 +17,7 @@ def test_something(self, mock_sms)
 
 from twilio.rest import TwilioRestClient
 from django.conf import settings
+import uuid
 
 class MockSMSBackend:
 
@@ -27,5 +28,19 @@ class MockSMSBackend:
         return {'message': message, 'to': to}
 
     @staticmethod
-    def get_id_from_payload(payload):
-        pass
+    def get_id_from_payload(payload, always_return_id=1):
+        return always_return_id
+
+    def update_status(self, communication, payload, **kwargs):
+        data = {
+            'communication': communication,
+            'payload': payload
+        }
+        id = str(uuid.uuid4())
+        return (id, data)
+
+    def reply_received(self, original_communication, payload, *args, **kwargs):
+        return {
+            'original_communication': original_communication,
+            'payload': payload
+        }

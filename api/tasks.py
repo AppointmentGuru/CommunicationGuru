@@ -35,7 +35,6 @@ def send_email(communication):
     subject = communication.get('subject')
     message = communication.get('message')
     urls = communication.get('attached_urls')
-
     emailer = Email(recipients, sender)
 
     result, message = emailer.send(subject, message, message, urls=urls)

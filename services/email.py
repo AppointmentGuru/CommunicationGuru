@@ -34,6 +34,18 @@ class Email:
     def send_html_email(self, subject, plaintext, html):
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
 
+    def update_status(self, original_communication, payload, **kwargs):
+        if isinstance(payload, six.string_types):
+            payload = json.loads(payload)
+
+        from api.models import CommunicationStatus
+        status = CommunicationStatus()
+        status.communication = original_communication
+        status.status = payload.get('event')
+        status.raw_result = payload
+        status.save()
+        return status
+
     def status_update(self, payload):
 
         # normalize:
@@ -58,10 +70,17 @@ class Email:
         status.save()
         return status
 
+    def reply_received(self, payload):
+        """
+        Handle a reply to an incoming email
+        """
+        # create communication message
+        #
+        pass
+
     def get_id_from_payload(self, payload):
         # TODO: Get Message ID
         return payload.get('Message-Id')
-
 
 class GoogleActions:
 

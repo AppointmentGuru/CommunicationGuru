@@ -2,22 +2,33 @@
 from __future__ import unicode_literals
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 from .datas.payloads import ZOOMCONNECT_REPLY_PAYLOAD
+from .testutils import quick_create_sms, quick_create_email
+
 from django.test import TestCase, override_settings
 from django.contrib.auth import get_user_model
 from django.core import mail
-import json
 
+import json, responses
 
-class CommunicationTestCase(TestCase):
+@override_settings(SMS_BACKEND='services.backends.mocksms.MockSMSBackend')
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class CommunicationModelCreatedTestCase(TestCase):
 
-    def test_minimal_sms_fields(self):
+    def test_it_sets_the_tags_to_message(self):
+        sms = quick_create_sms()
+        expected = 'msg:{}'.format(sms.id)
+        assert sms.tags[0] == expected,\
+            'Expected {} to be: {}'.format(sms.tags[0], expected)
 
-        comm = Communication()
-        comm.short_message = 'testing'
-        comm.owner = '1'
-        comm.object_ids = 'user:1'
-        comm.recipient_phone_number = '+27832566533'
-        comm.save()
+    def test_it_adds_if_existing_tags(self):
+        sms = quick_create_sms(with_save=False)
+        sms.tags = ['foo', 'bar']
+        sms.save()
+        sms.refresh_from_db()
+        expected_message = 'foo,bar,msg:{}'.format(sms.id)
+        tags = (',').join(sms.tags)
+        assert tags == expected_message,\
+            'Expected {} to be: {}'.format(tags, expected_message)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
@@ -26,7 +37,6 @@ class ModelAppliesTemplateTestCase(TestCase):
     def setUp(self):
 
         self.user = get_user_model().objects.create_user(username='joe')
-
         data = {
             "owner": self.user,
             "subject": "hi {{first_name}}",
@@ -83,28 +93,77 @@ class ModelSendsEmailWithAttachmentsTestCase(TestCase):
         self.comm.refresh_from_db()
         # todo .. verify that it's saving the response ..
 
-
-class CommunicationTestCase(TestCase):
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class CommunicationSendsSMSTestCase(TestCase):
 
     def setUp(self):
-        comm = Communication()
-        comm.save()
+        pass
 
-        for x in range(0,5):
-            stat = CommunicationStatus()
-            stat.status = str(x)
-            stat.communication = comm
-            stat.save()
+    @responses.activate
+    @override_settings(ZOOM_BASE_URL='https://www.zoomconnect.com:443')
+    @override_settings(ZOOM_API_TOKEN='1234')
+    @override_settings(ZOOM_EMAIL='joe@soap.com')
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    def test_sets_zoom_connect_backend_details(self):
 
-        self.comm = comm
+        responses.add(
+            responses.POST,
+            'https://www.zoomconnect.com:443/app/api/rest/v1/sms/send',
+            json = {'messageId': '5a76e8167736b6c1d341643e', 'error': None}
+        )
 
-    def test_status_list(self):
+        sms = quick_create_sms()
+        assert sms.backend_used == 'services.backends.zoomconnect.ZoomSMSBackend'
+        assert sms.backend_message_id == '5a76e8167736b6c1d341643e'
+        assert sms.backend_result.get('messageId') == '5a76e8167736b6c1d341643e'
 
-        status_list = self.comm.status_list
-        assert len(status_list) == 5
+
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class CommunicationStatusUpdateTestCase(TestCase):
+
+    def setUp(self):
+        pass
+
+    @responses.activate
+    @override_settings(ZOOM_BASE_URL='https://www.zoomconnect.com:443')
+    @override_settings(ZOOM_API_TOKEN='1234')
+    @override_settings(ZOOM_EMAIL='joe@soap.com')
+    @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+    def test_zoomconnect_update_status(self):
+
+        responses.add(
+            responses.POST,
+            'https://www.zoomconnect.com:443/app/api/rest/v1/sms/send',
+            json = {'messageId': '5a76e8167736b6c1d341643e', 'error': None}
+        )
+
+        comm = quick_create_sms()
+        status_update_payload = {
+            "dataField": "msg:{}".format(comm.id),
+            "messageId": "5a757c7b7736b6c1d340a0db",
+            "status": "DELIVERED",
+        }
+        comm.update_status(status_update_payload)
+        status = CommunicationStatus.objects.filter(communication_id=comm.id).first()
+
+        assert status.status == 'DELIVERED'
+
+    def test_email_update_status(self):
+        comm = quick_create_email()
+        comm.refresh_from_db()
+        update_status_payload = {
+            "event": "delivered"
+        }
+        comm.update_status(update_status_payload)
+
+        status = CommunicationStatus.objects.filter(communication_id=comm.id).first()
+        assert status.status == 'delivered'
 
 
-class CommunicationGetFromPayloadTestCase(TestCase):
+class CommunicationGetZoomConnectFromPayloadTestCase(TestCase):
+    """
+    Refactor: I guess this should really be in test_zoombackend ?
+    """
 
     def setUp(self):
         self.comm = Communication()
@@ -117,10 +176,29 @@ class CommunicationGetFromPayloadTestCase(TestCase):
         self.comm.owner = '1'
         self.comm.save()
 
-    def test_get_from_payload(self):
-        old_comm = Communication().get_from_payload(
+        self.status_payload = {
+            "messageId": "5a757f2a7736b6c1d340a1a4",
+            "status": 'DELIVERED',
+        }
+        self.reply_payload = {
+            "dataField": "msg:{}".format(self.comm.id)
+        }
+
+    def test_get_from_status_payload(self):
+        '''
+        this doesnt pass
+        '''
+        old_comm = Communication.get_from_payload(
             'zoomconnect',
             'sms',
-            ZOOMCONNECT_REPLY_PAYLOAD
+            self.status_payload
+        )
+        assert old_comm.id is self.comm.id
+
+    def test_get_from_status_payload(self):
+        old_comm = Communication.get_from_payload(
+            'zoomconnect',
+            'sms',
+            self.status_payload
         )
         assert old_comm.id is self.comm.id

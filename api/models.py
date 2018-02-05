@@ -4,13 +4,16 @@ from __future__ import unicode_literals
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Q
+from django.utils.module_loading import import_string
+
 from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
 
 from services.sms import SMS
 from services.email import Email
-import mistune
+import mistune, six
 
 from django.template import Context
 from django.template import Template
@@ -49,19 +52,21 @@ class Communication(models.Model):
     def __str__(self):
         return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
 
-    # isOwner
+    related_communication = models.ForeignKey('Communication', blank=True, null=True)
+
     owner = models.CharField(max_length=100, blank=True, null=True)
     # appointment:123 client:345 user:
     # communicatoin/appointment/:id
     # tags = ArrayField
-    object_ids = ArrayField(models.CharField(max_length=100), default=[], blank=True, null=True)
+    object_ids = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
+    tags = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
+    channel = ArrayField(models.CharField(max_length=255), default=[], blank=True, null=True)
 
     # the object to which this lineitem is attached
     sender_email = models.EmailField(blank=True, null=True)
-
+    sender_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
     preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
 
-    recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_emails = ArrayField(models.EmailField(blank=True, null=True), blank=True, null=True, db_index=True)
     recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
@@ -89,16 +94,36 @@ class Communication(models.Model):
     cancel_signal = models.BooleanField(default=False)
 
     @classmethod
+    def sms(cls, owner, from_number, to_number, message, tags=[], object_ids=[]):
+        '''
+        Creates a short message
+        '''
+        cls.owner = owner
+        cls.sender_phone_number = from_number
+        cls.recipient_phone_number = to_number
+        cls.short_message = message
+        cls.tags = tags
+        cls.object_ids = object_ids
+        cls.preferred_transport = 'sms'
+        cls.save()
+
+    @classmethod
     def get_from_payload(cls, backend, transport, payload):
         message_id = None
         if transport == 'sms':
-            message_id = (SMS(settings.BACKENDS[backend])
-                          .get_id_from_payload(payload))
+            message_id = SMS(settings.BACKENDS[backend])\
+                            .get_id_from_payload(payload)
         if transport == 'email':
             message_id = (Email(settings.BACKENDS[backend])
                           .get_id_from_payload(payload))
+
         try:
-            return cls.objects.get(id=message_id)
+            # normalize_message_id:
+            try:
+                int(message_id)
+                return cls.objects.get(id=message_id)
+            except:
+                return cls.objects.get(backend_message_id=message_id)
         except Communication.DoesNotExist:
             return None
 
@@ -131,15 +156,38 @@ class Communication(models.Model):
                 self.save()
             return self
 
-    def send(self):
+    def get_backend(self):
+        '''
+        Returns the backend object associated with this message, None if no backend found
+        '''
+        if self.preferred_transport == 'email':
+            return import_string('services.email.Email')(
+                to=self.recipient_emails,
+                frm=self.sender_email)
+
+        if self.backend_used is not None:
+            return import_string(self.backend_used)()
+
+        return None
+
+    def send(self, tags=[]):
 
         # TODO: only send if send_date is now / in the past
 
         if self.preferred_transport == 'sms':
             sms = SMS()
-            result = sms.send(
+            tags.append('msg:{}'.format(self.id))
+            extra_data = {'tags': tags}
+            message_id, result = sms.send(
                 self.short_message,
-                self.recipient_phone_number.as_e164)
+                self.recipient_phone_number.as_e164,
+                **extra_data)
+
+            self.backend_used = settings.SMS_BACKEND
+            self.backend_message_id = message_id
+            self.backend_result = result
+            self.save()
+
             return result
             # return sms.save(self, result)
 
@@ -147,34 +195,27 @@ class Communication(models.Model):
             from .tasks import send_email
             return send_email.delay(self.as_json_string)
 
-
-    def send_html_email(self, subject, plaintext, html):
-        return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
-
-    def status_update(self, payload):
+    def update_status(self, payload, **kwargs):
 
         # normalize:
         if isinstance(payload, six.string_types):
             payload = json.loads(payload)
 
-        status = CommunicationStatus()
+        backend = self.get_backend()
+        return backend.update_status(self, payload)
 
-        message_id = payload.get('Message-Id')
-        if message_id is not None:
-            try:
-                comm = Communication.objects.get(backend_message_id=message_id)
-                status.communication = comm
-            except Communication.DoesNotExist:
-                pass
-        status.status = payload.get('event')
-        status.save()
 
-        status.raw_result = payload
-        status.save()
-        return status
+    def reply_received(self, payload, **kwargs):
+        if isinstance(payload, six.string_types):
+            payload = json.loads(payload)
 
-    def reply_received(self):
-        pass
+        backend = self.get_backend()
+        backend.reply_received(self, payload)
+
+
+    def send_html_email(self, subject, plaintext, html):
+        return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
+
 
 
 class CommunicationStatus(models.Model):

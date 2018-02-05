@@ -27,13 +27,25 @@ MAILGUN_EMAIL_NO_MESSAGE_ID = {
   "body-plain": ""
 }
 
-ZOOMCONNECT_REPLY_PAYLOAD = {
-  "date": "201802031121",
-  "messageId": "5a757f2a7736b6c1d340a1a4",
-  "from": "+27832566533",
-  "to": "INF-WnV8e3c2tsHTQKDb",
-  "nonce-date": "20180203112647",
-  "message": "Testing again. ",
-  "nonce": "701ed8ab-ff84-4f49-a17f-79b293955c75",
-  "checksum": "f4fca6b5bdbc1cfbf54c783b1db1862d5f5b3316"
+ZOOMCONNECT_STATUS_UPDATE = {
+  "dataField": "cli:1691,app:13478,pra:363,pro:11272,",
+  "messageId": "5a757c7b7736b6c1d340a0db",
+  "campaign": "practitioner-363",
+  "nonce-date": "20180203111524",
+  "nonce": "bbf12a28-368d-45b3-acfa-42c7a458834a",
+  "status": "DELIVERED",
+  "checksum": "571df5cafaab4fde15de429435ce7537a3ae5259"
 }
+
+ZOOMCONNECT_REPLY = {
+  "date": "201802031543",
+  "dataField": "msg:1",
+  "messageId": "5a75bc897736b6c1d340b68e",
+  "from": "+27832566533",
+  "to": "INF-WnW8d3c2tsHTQLaM",
+  "nonce-date": "20180203154838",
+  "message": "Another response",
+  "nonce": "d91017cb-5638-4e15-81b7-79824b53c7fc",
+  "checksum": "0b01a7a67be9f87514e09b7e5f337d761f20cffa"
+}
+
