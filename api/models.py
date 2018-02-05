@@ -29,7 +29,7 @@ TRANSPORTS = [
     ('email', 'Email'),
     ('sms', 'SMS'),
     # ('im', 'IM (e.g.: Slack, Hipchat)'),
-    # ('notification', 'Push Notification'),
+    ('notification', 'Push Notification'),
 ]
 
 
@@ -160,14 +160,19 @@ class Communication(models.Model):
         '''
         Returns the backend object associated with this message, None if no backend found
         '''
+        if self.backend_used is not None:
+            return import_string(self.backend_used)()
+
         if self.preferred_transport == 'email':
             return import_string('services.email.Email')(
                 to=self.recipient_emails,
                 frm=self.sender_email)
-
-        if self.backend_used is not None:
-            return import_string(self.backend_used)()
-
+        if self.preferred_transport == 'notification':
+            backend = settings.get('PUSH_BACKEND')
+            return import_string(backend)()
+        if self.preferred_transport == 'sms':
+            backend = settings.get('SMS_BACKEND')
+            return import_string(backend)()
         return None
 
     def send(self, tags=[]):
@@ -190,6 +195,13 @@ class Communication(models.Model):
 
             return result
             # return sms.save(self, result)
+
+        if self.preferred_transport == 'push-notification':
+            result = self.get_backend().send(self)
+            self.backend_used = settings.PUSH_BACKEND
+            self.backend_result = result.json()
+            self.backend_message_id = result.json().get('id')
+            self.save()
 
         if self.preferred_transport == 'email':
             from .tasks import send_email

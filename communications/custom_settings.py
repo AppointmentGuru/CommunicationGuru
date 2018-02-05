@@ -65,8 +65,16 @@ BACKENDS = {
     'zoomconnect': 'services.backends.zoomconnect.ZoomSMSBackend',
     'mocksms': 'services.backends.mocksms.MockSMSBackend',
     'twilio': 'services.backends.twilio.TwillioBackend',
+    'onesignal': 'services.backends.onesignal.OneSignalBackend',
 }
 SMS_BACKEND = BACKENDS[os.environ.get('SMS_BACKEND')]
+
+# os.environ.get('SMS_BACKEND')
+PUSH_BACKEND = BACKENDS['onesignal']
+
+#onesignal
+ONESIGNAL_APP_TOKEN= os.environ.get('ONESIGNAL_APP_TOKEN')
+ONESIGNAL_APP_ID= os.environ.get('ONESIGNAL_APP_ID')
 
 # EMAIL / MailGun
 

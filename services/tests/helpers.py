@@ -9,3 +9,14 @@ def quick_create_sms(backend_message_id):
     comm.backend_message_id = backend_message_id
     comm.save()
     return comm
+
+def quick_create_push_notification(with_save=True):
+    comm = Communication()
+    comm.channel = ['Test users']
+    # comm.preferred_transport = 'sms'
+    comm.short_message = 'This is a test'
+    comm.subject = 'This is the title'
+
+    if with_save:
+        comm.save()
+    return comm

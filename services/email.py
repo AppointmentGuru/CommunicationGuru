@@ -47,6 +47,9 @@ class Email:
         return status
 
     def status_update(self, payload):
+        '''
+        @deprecated
+        '''
 
         # normalize:
         if isinstance(payload, six.string_types):
