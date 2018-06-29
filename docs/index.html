@@ -3,53 +3,17 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>CommunicationGuru</title>
-    <meta name="description" content="">
+    <title>CommunicationGuru | CommunicationGuru</title>
+    <meta name="description" content="Documentation for the CommunicationGuru">
     
     
-    <link rel="preload" href="/assets/css/1.styles.cdac0ad4.css" as="style"><link rel="preload" href="/assets/js/app.b7c782d1.js" as="script"><link rel="preload" href="/assets/js/0.98b53dad.js" as="script">
-    <link rel="stylesheet" href="/assets/css/1.styles.cdac0ad4.css">
+    <link rel="preload" href="./assets/css/1.styles.b5e964d9.css" as="style"><link rel="preload" href="./assets/js/app.f9774a28.js" as="script"><link rel="preload" href="./assets/js/0.d341a471.js" as="script">
+    <link rel="stylesheet" href="./assets/css/1.styles.b5e964d9.css">
   </head>
   <body>
-    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/" class="home-link router-link-exact-active router-link-active"></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><!----></div></header><div class="sidebar-mask"></div><div class="sidebar"><!----><!----></div><div class="page"><div class="content"><h1 id="communicationguru"><a href="#communicationguru" aria-hidden="true" class="header-anchor">#</a> CommunicationGuru</h1><p>Service for sending communications in a way that is most awesome</p><h2 id="sending-messages"><a href="#sending-messages" aria-hidden="true" class="header-anchor">#</a> Sending messages:</h2><p><strong>Send an SMS</strong></p><div class="language- extra-class"><pre class="language-text"><code>from api.models import Communication
-message = Communication.sms(to='+27..', from='+27..', message, tags=[])
-</code></pre></div><p><strong>Send an Email</strong></p><div class="language- extra-class"><pre class="language-text"><code>from api.models import Communication
-message = Communication.email(to='+27..', from='+27..', message, tags=[])
-</code></pre></div><h2 id="webhooks"><a href="#webhooks" aria-hidden="true" class="header-anchor">#</a> Webhooks:</h2><h3 id="incoming-status-updates"><a href="#incoming-status-updates" aria-hidden="true" class="header-anchor">#</a> Incoming status updates:</h3><p><code>POST /incoming/:transport/:backend/status/</code></p><p><strong>What happens</strong></p><div class="language- extra-class"><pre class="language-text"><code>comm = Communication.get_from_payload(backend, transport, payload)
-comm.update_status(payload)
-
-comm.reply_received(payload)
-</code></pre></div><p>Internally this does:</p><div class="language- extra-class"><pre class="language-text"><code># because the communication knows about it's backend
-comm.get_backend().update_status(self, payload)
-comm.get_backend().reply_received(self, payload)
-</code></pre></div><p>e.g:</p><p><code>POST /incoming/email/mailgun/status</code></p><h3 id="incoming-replies"><a href="#incoming-replies" aria-hidden="true" class="header-anchor">#</a> Incoming replies:</h3><p><code>POST /incoming/:transport/:backend/reply/</code></p><p>e.g.:</p><p><code>POST /incoming/email/mailgun/reply</code></p><h2 id="creating-a-backend"><a href="#creating-a-backend" aria-hidden="true" class="header-anchor">#</a> Creating a backend:</h2><p>A backend must implement the following methods:</p><div class="language- extra-class"><pre class="language-text"><code>class MyAwesomeBackend:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def get_id_from_payload(payload, always_return_id=1):
-        &quot;&quot;&quot;
-        Given a reply, or status update payload, extract the backend message id
-        &quot;&quot;&quot;
-
-    def send(self, message, to, **kwargs):
-        &quot;&quot;&quot;
-        Send a message
-        &quot;&quot;&quot;
-
-    def update_status(self, communication, payload, **kwargs):
-        &quot;&quot;&quot;
-        Given a status update payload, update the message status
-        &quot;&quot;&quot;
-
-    def reply_received(self, original_communication, payload, *args, **kwargs):
-        &quot;&quot;&quot;
-        Handle a reply to a message
-        &quot;&quot;&quot;
-
-</code></pre></div><h1 id="todo-scenarios"><a href="#todo-scenarios" aria-hidden="true" class="header-anchor">#</a> todo: Scenarios</h1><ul><li>Define a scenario (e.g.: Appointment created, Appointment rescheduled etc.) which creates a configured collection of communications</li></ul><p>User has Scenarios have Communications
-User has Communications</p></div><div class="page-edit"><!----><!----></div><!----></div></div></div>
-    <script src="/assets/js/0.98b53dad.js" defer></script><script src="/assets/js/app.b7c782d1.js" defer></script>
+    <div id="app" data-server-rendered="true"><div class="theme-container no-sidebar"><header class="navbar"><div class="sidebar-button"><svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" role="img" viewBox="0 0 448 512" class="icon"><path fill="currentColor" d="M436 124H12c-6.627 0-12-5.373-12-12V80c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12zm0 160H12c-6.627 0-12-5.373-12-12v-32c0-6.627 5.373-12 12-12h424c6.627 0 12 5.373 12 12v32c0 6.627-5.373 12-12 12z"></path></svg></div><a href="/./" class="home-link router-link-exact-active router-link-active"><!----><span class="site-name">
+      CommunicationGuru
+    </span></a><div class="links"><div class="search-box"><input aria-label="Search" autocomplete="off" spellcheck="false" value=""><!----></div><!----></div></header><div class="sidebar-mask"></div><div class="sidebar"><!----><!----></div><div class="page"><div class="content"><h2 id="communicationguru"><a href="#communicationguru" aria-hidden="true" class="header-anchor">#</a> CommunicationGuru</h2><blockquote><p>Send messages using all sorts of transports via all sorts of services and still be able to view them all in a single inbox</p></blockquote><h3 id="installation"><a href="#installation" aria-hidden="true" class="header-anchor">#</a> Installation</h3><h3 id="getting-started"><a href="#getting-started" aria-hidden="true" class="header-anchor">#</a> Getting started</h3><h3 id="backends"><a href="#backends" aria-hidden="true" class="header-anchor">#</a> Backends</h3><h3 id="ui"><a href="#ui" aria-hidden="true" class="header-anchor">#</a> UI</h3></div><div class="page-edit"><!----><!----></div><!----></div></div></div>
+    <script src="./assets/js/0.d341a471.js" defer></script><script src="./assets/js/app.f9774a28.js" defer></script>
   </body>
 </html>
