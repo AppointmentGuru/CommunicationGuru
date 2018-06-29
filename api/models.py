@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
 
 from services.sms import SMS
-import mistune
+import mistune, importlib
 
 from django.template import Context
 from django.template import Template
@@ -25,7 +25,7 @@ TRANSPORTS = [
     ('email', 'Email'),
     ('sms', 'SMS'),
     # ('im', 'IM (e.g.: Slack, Hipchat)'),
-    # ('notification', 'Push Notification'),
+    ('notification', 'Push Notification'),
 ]
 
 class CommunicationTemplate(models.Model):
@@ -38,6 +38,7 @@ class CommunicationTemplate(models.Model):
     subject = models.CharField(max_length=255, blank=True, null=True)
     short_message = models.CharField(max_length=144, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
+    schema = JSONField(blank=True, null=True)
 
     template_base = models.CharField(max_length=255)
 
@@ -56,9 +57,15 @@ class Communication(models.Model):
     # the object to which this lineitem is attached
     sender_email = models.EmailField(blank=True, null=True)
 
-    preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
+    channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
+    backends = ArrayField(
+                models.CharField(max_length=255, blank=True, null=True),
+                default=[],
+                blank=True,
+                null=True,
+                help_text='An array of backends to try use to send. Will try in order until one is successful'
+               )
 
-    recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_emails = ArrayField(models.EmailField(blank=True, null=True), blank=True, null=True, db_index=True)
     recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
@@ -82,6 +89,10 @@ class Communication(models.Model):
     backend_used = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     backend_message_id = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     backend_result = JSONField(default={}, blank=True, null=True, db_index=True)
+
+    # legacy fields:
+    preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
+    recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
     @property
     def status_list(self):
@@ -112,21 +123,29 @@ class Communication(models.Model):
                 self.save()
             return self
 
+
+    def get_remote(self):
+        from .helpers import get_backend
+        return get_backend(self.backend_used, self).fetch(self.backend_message_id)
+
     def send(self):
+        from .helpers import get_backend
+        for backend in self.backends:
+            return get_backend(backend, self).send()
 
         # TODO: only send if send_date is now / in the past
 
-        if self.preferred_transport == 'sms':
-            sms = SMS()
-            result = sms.send(
-                self.short_message,
-                self.recipient_phone_number.as_e164)
-            return result
-            # return sms.save(self, result)
+        # if self.preferred_transport == 'sms':
+        #     sms = SMS()
+        #     result = sms.send(
+        #         self.short_message,
+        #         self.recipient_phone_number.as_e164)
+        #     return result
+        #     # return sms.save(self, result)
 
-        if self.preferred_transport == 'email':
-            from .tasks import send_email
-            return send_email.delay(self.as_json_string)
+        # if self.preferred_transport == 'email':
+        #     from .tasks import send_email
+        #     return send_email.delay(self.as_json_string)
 
 
     def send_html_email(self, subject, plaintext, html):

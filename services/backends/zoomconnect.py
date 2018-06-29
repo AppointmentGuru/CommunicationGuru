@@ -1,5 +1,21 @@
 """
 A backend for sending smses using: https://www.zoomconnect.com
+
+Reply data:
+
+{
+  "date": "201806292136",
+  "dataField": "cli:1,app:21502,pra:3001,pro:17554,",
+  "repliedToMessageId": "5b361e32e396c8e42e098807",
+  "messageId": "5b368a2be396c8e42e0ac61f",
+  "campaign": "practitioner-3001",
+  "from": "+27832566533",
+  "to": "27987654349",
+  "nonce-date": "20180629214112",
+  "message": "Testing testing 123",
+  "nonce": "5cfb2a28-c660-4b4d-aa6e-aeafc8f04563",
+  "checksum": "072a46e882faab427434cb8f2e4e01159cf6f9ab"
+}
 """
 
 import requests
@@ -44,6 +60,18 @@ class ZoomSMSBackend:
     def fetch(self, id, **kwargs):
         url, params, headers = self._get_url('/v1/messages/{}'.format(id))
         return requests.get(url, params=params, headers=headers)
+
+    def receive_reply(self, data):
+        '''
+        Investigate the incoming data and if you recognize it, then handle the reply
+        '''
+        pass
+
+    def receive_status(self, data):
+        """
+        Handle a delivery status report
+        """
+        pass
 
     def search(self, params={}, **kwargs):
         url, credentials, headers = self._get_url('/v1/messages/all')

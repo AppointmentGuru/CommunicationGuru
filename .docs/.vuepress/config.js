@@ -5,7 +5,10 @@ module.exports = {
   themeConfig: {
     sidebar: [
       '/',
-      '/backends/'
+      '/configuration/',
+      '/unibox/',
+      '/backends/',
+      '/api/'
     ]
   }
 }

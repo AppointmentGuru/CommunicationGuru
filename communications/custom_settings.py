@@ -60,7 +60,7 @@ ZOOM_API_TOKEN = os.environ.get('ZOOM_AUTH_TOKEN')
 ZOOM_EMAIL = 'tech@appointmentguru.co'
 
 SMS_BACKEND = os.environ.get('SMS_BACKEND')
-
+DEFAULT_IN_APP_BACKEND = 'services.backends.onesignal.OneSignalBackend'
 # EMAIL / MailGun
 
 ANYMAIL = {

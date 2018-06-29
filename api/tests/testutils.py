@@ -19,3 +19,4 @@ def get_proxy_headers(user_id, consumer='joesoap', headers = {}):
     else:
         headers['HTTP_X_AUTHENTICATED_USERID'] = str(user_id)
     return headers
+

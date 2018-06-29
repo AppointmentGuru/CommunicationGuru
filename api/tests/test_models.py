@@ -4,6 +4,9 @@ from django.test import TestCase, override_settings
 from django.core import mail
 from django.contrib.auth import get_user_model
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
+from ..helpers import (
+    create_in_app_communication
+)
 import json
 
 class CommunicationTestCase(TestCase):
@@ -59,6 +62,14 @@ class ModelAppliesTemplateTestCase(TestCase):
         res = self.comms.as_json_string
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
+
+class ModelSendTestCase(TestCase):
+
+    def test_send_inapp_notification(self):
+        backend = 'services.backends.onesignal.OneSignalBackend'
+        res = create_in_app_communication("test", "this is a test", "Test subject", backend)
+        import ipdb;ipdb.set_trace()
+
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelSendsEmailWithAttachmentsTestCase(TestCase):

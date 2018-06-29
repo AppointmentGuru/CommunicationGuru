@@ -4,8 +4,13 @@
 
 ## Installation
 
+```
+# docker compose file:
+
+...
+
+```
+Then you can simply run: `docker-compose up -d`
+
+
 ## Getting started
-
-## Backends
-
-## UI
