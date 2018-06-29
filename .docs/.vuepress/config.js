@@ -1,5 +1,11 @@
 module.exports = {
   title: 'CommunicationGuru',
   description: 'Documentation for the CommunicationGuru',
-  base: './'
+  base: '/CommunicationGuru/',
+  themeConfig: {
+    sidebar: [
+      '/',
+      '/backends/'
+    ]
+  }
 }
