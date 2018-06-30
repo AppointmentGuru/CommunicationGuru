@@ -21,3 +21,6 @@ coverage.xml
 *,cover
 *.log
 .git
+.docs
+docs
+

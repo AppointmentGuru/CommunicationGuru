@@ -3,6 +3,7 @@ Helpers. For getting stuff done
 '''
 from .models import Communication
 import importlib
+from django.conf import settings
 
 def get_backend(method_string, communication):
     '''
@@ -14,7 +15,7 @@ def get_backend(method_string, communication):
     module = importlib.import_module(module_string)
     return getattr(module, method_to_call)(communication)
 
-def create_in_app_communication(channel, message, subject, backend = None):
+def create_in_app_communication(channel, message, subject, tags=[], backend = None):
 
     if backend is None:
         backend = settings.DEFAULT_IN_APP_BACKEND
@@ -27,9 +28,41 @@ def create_in_app_communication(channel, message, subject, backend = None):
     comm.save()
     comm.send()
 
-    import ipdb;ipdb.set_trace()
     return comm
 
+def create_short_message(channel, message, backend=None, tags = [], **kwargs):
+
+    if backend is None:
+        backend = settings.DEFAULT_SHORT_MESSAGE_BACKEND
+
+    comm = Communication()
+    comm.channel = channel
+    comm.backends = [backend]
+    comm.short_message = message
+    comm.tags = tags
+    comm.subject = kwargs.get('subject')
+    comm.recipient_phone_number = kwargs.get('recipient_phone_number')
+
+    comm.save()
+    comm.send()
+
+    return comm
+
+def create_sms(channel, message, to, tags=[], backend=None):
+
+    if backend is None:
+        backend = settings.SMS_BACKEND
+
+    comm = Communication()
+    comm.channel = channel
+    comm.backends = [backend]
+    comm.short_message = message
+    comm.recipient_phone_number = to
+    comm.tags = tags
+    comm.save()
+    comm.send()
+
+    return comm
 
 def send():
     '''Will send any kind of message'''

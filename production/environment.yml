@@ -2,7 +2,7 @@ docker_environment:
   - key: DEBUG
     value: False
   - key: DATABASE_NAME
-    value: "{{organization}}_{{service}}"
+    value: "{{organization}}_{{service}}_2"
   - key: DATABASE_USER
     value: "{{organization}}_{{service}}"
   - key: DATABASE_PASSWORD
@@ -41,3 +41,11 @@ docker_environment:
     value: anymail.backends.mailgun.MailgunBackend
   - key: SLACK_TOKEN
     value: "{{slack_api_token}}"
+  - key: DEFAULT_SHORT_MESSAGE_BACKEND
+    value: "services.backends.onesignal.OneSignalBackend"
+  - key: DEFAULT_IN_APP_BACKEND
+    value: "services.backends.onesignal.OneSignalBackend"
+  - key: ONESIGNAL_APP_TOKEN
+    value: "{{one_signal_app_token}}"
+  - key: ONESIGNAL_APP_ID
+    value: "{{one_signal_app_id}}"

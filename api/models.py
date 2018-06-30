@@ -16,8 +16,12 @@ from django.template import Template
 
 SEND_STATUSES = [
     ('N', 'New'),
+    ('Q', 'Queued'),
     ('S', 'Sent'),
     ('D', 'Delivered'),
+    ('O', 'Opened'),
+    ('C', 'Clicked'),
+    ('UK', 'Unknown'),
     ('F', 'Failed'),
 ]
 
@@ -47,6 +51,7 @@ class Communication(models.Model):
     def __str__(self):
         return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
 
+    reply_to = models.ForeignKey('Communication', blank=True, null=True)
     # isOwner
     owner = models.CharField(max_length=100, blank=True, null=True)
     # appointment:123 client:345 user:
@@ -64,6 +69,13 @@ class Communication(models.Model):
                 blank=True,
                 null=True,
                 help_text='An array of backends to try use to send. Will try in order until one is successful'
+               )
+
+    tags = ArrayField(
+                models.CharField(max_length=255, blank=True, null=True),
+                default=[],
+                blank=True,
+                null=True
                )
 
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
@@ -123,10 +135,22 @@ class Communication(models.Model):
                 self.save()
             return self
 
+    def __get_backend(self):
+        from .helpers import get_backend
+        return get_backend(self.backend_used, self)
 
     def get_remote(self):
-        from .helpers import get_backend
-        return get_backend(self.backend_used, self).fetch(self.backend_message_id)
+
+        return self.__get_backend().fetch(self.backend_message_id)
+
+    def handle_reply(self, data):
+        """
+        Route to the backend's handle_reply function
+        which should send the message on to the default
+        backend for handling either short messages or
+        long messages(emails)
+        """
+        self.__get_backend().handle_reply(data)
 
     def send(self):
         from .helpers import get_backend
@@ -146,7 +170,6 @@ class Communication(models.Model):
         # if self.preferred_transport == 'email':
         #     from .tasks import send_email
         #     return send_email.delay(self.as_json_string)
-
 
     def send_html_email(self, subject, plaintext, html):
         return mail.send_mail(subject, plaintext, self.frm, self.to, html_message=html)
@@ -177,7 +200,7 @@ class Communication(models.Model):
 class CommunicationStatus(models.Model):
 
     communication = models.ForeignKey(Communication, blank=True, null=True, default=None, related_name='communicationstatus')
-    status = models.CharField(max_length=255, blank=True, null=True, default='queued', db_index=True)
+    status = models.CharField(max_length=255, choices=SEND_STATUSES, blank=True, null=True, default='N', db_index=True)
 
     raw_result = JSONField(blank=True, null=True)
 

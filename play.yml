@@ -32,10 +32,10 @@
     CheckRate: 300
     TestTags: ''
   roles:
-    - role: dns
-      tags: [dns]
-    - role: kongapi
-      tags: [kong]
+    # - role: dns
+    #   tags: [dns]
+    # - role: kongapi
+    #   tags: [kong]
     - role: status
       tags: [status]
 

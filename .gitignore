@@ -101,3 +101,4 @@ ENV/
 .mypy_cache/
 *.env
 *.DS_Store
+docker-compose.unibox.yml

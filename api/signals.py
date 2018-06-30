@@ -6,8 +6,8 @@ from .models import Communication
 def communication_pre_save(sender, instance, **kwargs):
     instance.apply_template(with_save=False)
 
-@receiver(post_save, sender=Communication, dispatch_uid="api.communication.communication_post_save")
-def communication_post_save(sender, instance, created, **kwargs):
-    if created:
-        # only send on creation (otherwise it will loop)
-        return instance.send()
+# @receiver(post_save, sender=Communication, dispatch_uid="api.communication.communication_post_save")
+# def communication_post_save(sender, instance, created, **kwargs):
+#     if created:
+#         # only send on creation (otherwise it will loop)
+#         return instance.send()
