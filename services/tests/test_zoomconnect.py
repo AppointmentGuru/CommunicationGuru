@@ -56,10 +56,6 @@ class ZoomSendSMSTestCase(TestCase):
         assert reply.reply_to.id == self.comm.id
         assert reply.backend_used == settings.DEFAULT_SHORT_MESSAGE_BACKEND
 
-        import ipdb;ipdb.set_trace()
-
-
-
 
 # @override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
 # @override_settings(ZOOM_EMAIL='joe@soap.com')

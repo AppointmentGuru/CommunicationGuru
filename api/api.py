@@ -59,9 +59,12 @@ def health(request):
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def incoming_message(request, backend):
-    be = get_backend_class(backend)
-    be.from_payload(request.POST)
-    be.handle_reply()
+    module, klass = get_backend_class(backend)
+    be_class = getattr(module, klass)
+    data = request.POST
+    be = be_class.from_payload(backend, data)
+    be.handle_reply(data)
+    return HttpResponse('ok')
 
 
 @csrf_exempt
