@@ -20,6 +20,7 @@ from api import api
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^incoming/slack/$', api.slack_webhook, name='slack_webhook'),
+    url(r'^incoming/reply/(?P<backend>[\w.@+-]+)/$', api.incoming_message, name='incoming_message'),
     url(r'^messages/backends/(?P<transport>[\w-]+)/$', api.backends_messages, name='backend_messages'),
     url(r'^$', api.health, name='health'),
     url(r'^', include(api.router.urls)),

@@ -5,15 +5,19 @@ from .models import Communication
 import importlib
 from django.conf import settings
 
+def get_backend_class(method_string):
+    parts = method_string.split('.') # qualified method: e.g.: api.tasks.ping
+    klass = parts.pop()
+    module_string = ('.').join(parts)
+    module = importlib.import_module(module_string)
+    return module, klass
+
 def get_backend(method_string, communication):
     '''
     given a string path, call the method
     '''
-    parts = method_string.split('.') # qualified method: e.g.: api.tasks.ping
-    method_to_call = parts.pop()
-    module_string = ('.').join(parts)
-    module = importlib.import_module(module_string)
-    return getattr(module, method_to_call)(communication)
+    module, klass = get_backend_class(method_string)
+    return getattr(module, klass)(communication)
 
 def create_in_app_communication(channel, message, subject, tags=[], backend = None):
 

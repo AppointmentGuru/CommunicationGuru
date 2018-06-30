@@ -106,6 +106,12 @@ class Communication(models.Model):
     preferred_transport = models.CharField(max_length=10, default='email', choices=TRANSPORTS)
     recipient_channel = models.CharField(max_length=255, blank=True, null=True, db_index=True)
 
+    def get_by_backend(backend, backend_message_id):
+        return Communication.objects.get(
+            backend_used = backend,
+            backend_message_id = backend_message_id
+        )
+
     @property
     def status_list(self):
         statuses = self.communicationstatus.all().order_by('created_date')

@@ -1,7 +1,7 @@
 ---
 - hosts: service_postgres_master
   vars:
-    - postgres_db_name: "{{organization}}_{{service}}"
+    - postgres_db_name: "{{organization}}_unibox"
     - postgres_db_user: "{{organization}}_{{service}}"
     - postgres_db_password: "{{postgres_passwords[service]}}"
 

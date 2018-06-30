@@ -4,7 +4,8 @@ A backend for sending smses using: https://www.zoomconnect.com
 
 import requests
 from django.conf import settings
-from api.models import CommunicationStatus
+from api.models import Communication, CommunicationStatus
+from api.helpers import create_short_message
 
 class ZoomSMSBackend:
 
@@ -21,6 +22,16 @@ class ZoomSMSBackend:
             'FAILED_REFUNDED': 'F',
             'FAILED_OPTOUT': 'F',
         }
+
+    @classmethod
+    def from_payload(cls, backend, data):
+        id = data.get('messageId')
+        communication = Communication.objects.get(
+                            backend_used=backend,
+                            backend_message_id=id
+                        )
+        return cls(communication)
+
 
     def _get_url(self, path):
         url = '{}/app/api/rest{}'.format(settings.ZOOM_BASE_URL, path)
@@ -77,12 +88,14 @@ class ZoomSMSBackend:
             if data.get(field) is None: return False
 
         message_id = data.get('messageId')
-        original_message = Communication.get_by_backend(self.backend_id, message_id)
-        channel = data.get('campaign')
+        message = data.get('message')
+
+        channel = self.communication.channel
 
         reply = create_short_message(channel, message)
-        reply.reply_to = original_message
+        reply.reply_to = self.communication
         reply.save()
+        return reply
 
     def receive_status(self, data):
         """

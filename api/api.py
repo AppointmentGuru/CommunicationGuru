@@ -16,14 +16,19 @@ from services.sms import SMS
 from .models import Communication
 from .mixins import MultiSerializerMixin
 from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
-from .diagnostics import \
-    db_connected,\
-    celery_working,\
-    rabbit_is_up,\
+from .diagnostics import (
+    db_connected,
+    celery_working,
+    rabbit_is_up,
     failed_tasks_count
-from .serializers import \
-    CommunicationListSerializer,\
+)
+from .serializers import (
+    CommunicationListSerializer,
     CommunicationDetailSerializer
+)
+from .helpers import (
+    get_backend_class
+)
 
 from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
 import os, json, requests
@@ -48,6 +53,23 @@ def health(request):
     }
 
     return JsonResponse(result)
+
+
+@csrf_exempt
+@decorators.api_view(['POST'])
+@decorators.permission_classes((permissions.AllowAny, ))
+def incoming_message(request, backend):
+    be = get_backend_class(backend)
+    be.from_payload(request.POST)
+    be.handle_reply()
+
+
+@csrf_exempt
+@decorators.api_view(['POST', 'GET'])
+@decorators.permission_classes((permissions.AllowAny, ))
+def status_update(request):
+    pass
+
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
