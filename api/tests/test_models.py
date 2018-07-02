@@ -3,10 +3,13 @@ from __future__ import unicode_literals
 from django.test import TestCase, override_settings
 from django.core import mail
 from django.contrib.auth import get_user_model
+from django.core.mail import outbox
+
 from ..models import Communication, CommunicationTemplate, CommunicationStatus
 from ..helpers import (
     create_in_app_communication,
     create_sms,
+    create_email
 )
 import json
 
@@ -153,6 +156,21 @@ class ZoomConnectCommunicationTestCase(TestCase):
 
     def test_zoom_handle_reply(self):
         pass
+
+class EmailTestCase(TestCase):
+
+    def setUp(self):
+        self.comm = create_email(
+            channel = "test",
+            subject = "email subject",
+            message = "email message",
+            from_email = "tech@appointmentguru.co",
+            to_emails = ["joe@soap.com", "jane@soap.com"]
+        )
+
+    def test_sends_email(self):
+        assert len(outbox) == 1
+
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelSendsEmailWithAttachmentsTestCase(TestCase):

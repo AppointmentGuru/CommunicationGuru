@@ -19,6 +19,19 @@ def get_backend(method_string, communication):
     module, klass = get_backend_class(method_string)
     return getattr(module, klass)(communication)
 
+def create_email(channel, subject, message, from_email, to_emails=[], tags=[], backend = 'services.backends.email.EmailBackend', **kwargs):
+
+    comm = Communication()
+    comm.channel = channel
+    comm.backends = [backend]
+    comm.message = message
+    comm.subject = subject
+    comm.sender_email = from_email
+    comm.recipient_emails = to_emails
+    comm.save()
+    comm.send()
+    return comm
+
 def create_in_app_communication(channel, message, subject, tags=[], backend = None):
 
     if backend is None:

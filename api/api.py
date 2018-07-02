@@ -164,5 +164,6 @@ class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
 
     ordering = ('-id',)
 
+
 router = routers.DefaultRouter()
 router.register(r'communications', CommunicationViewSet)

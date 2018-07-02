@@ -32,6 +32,7 @@ TRANSPORTS = [
     ('notification', 'Push Notification'),
 ]
 
+
 class CommunicationTemplate(models.Model):
 
     def __str__(self):

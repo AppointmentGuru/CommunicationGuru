@@ -18,6 +18,7 @@ weasyprint
 redis 
 mistune
 jsonschema
+markdown2
 
 ipython
 ipdb

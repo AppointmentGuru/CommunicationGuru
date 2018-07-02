@@ -59,9 +59,6 @@ ZOOM_BASE_URL = 'https://www.zoomconnect.com:443'
 ZOOM_API_TOKEN = os.environ.get('ZOOM_AUTH_TOKEN')
 ZOOM_EMAIL = 'tech@appointmentguru.co'
 
-SMS_BACKEND = os.environ.get('SMS_BACKEND')
-DEFAULT_IN_APP_BACKEND = os.environ.get('DEFAULT_IN_APP_BACKEND')
-DEFAULT_SHORT_MESSAGE_BACKEND = os.environ.get('DEFAULT_SHORT_MESSAGE_BACKEND')
 # EMAIL / MailGun
 
 ANYMAIL = {
@@ -71,7 +68,19 @@ ANYMAIL = {
     'WEBHOOK_AUTHORIZATION': os.environ.get('WEBHOOK_AUTHORIZATION'),
 }
 MAILGUN_API_URL = 'https://api.mailgun.net'
-EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
 
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', 'False') == 'True'
+
+SMS_BACKEND = os.environ.get('SMS_BACKEND')
+DEFAULT_IN_APP_BACKEND = os.environ.get('DEFAULT_IN_APP_BACKEND')
+
+BACKENDS = [
+    'services.backends.email.EmailBackend',
+    'services.backends.onesignal.OneSignalBackend',
+    'services.backends.zoomconnect.ZoomSMSBackend',
+]
+
+DEFAULT_EMAIL_MESSAGE_BACKEND = 'services.backends.email.EmailBackend'
+DEFAULT_SHORT_MESSAGE_BACKEND = os.environ.get('DEFAULT_SHORT_MESSAGE_BACKEND')
+EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...

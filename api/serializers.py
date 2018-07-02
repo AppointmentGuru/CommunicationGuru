@@ -1,7 +1,16 @@
 from rest_framework import serializers
-from .models import Communication, CommunicationStatus
+from .models import (
+    Communication,
+    CommunicationStatus,
+    CommunicationTemplate
+)
 from .fields import CurrentUserDefaultUserId
 
+class CommunicationTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CommunicationTemplate
+        fields = '__all__'
 
 class CommunicationStatusSerializer(serializers.ModelSerializer):
     order_by = ('created_date')

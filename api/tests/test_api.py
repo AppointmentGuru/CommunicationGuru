@@ -6,11 +6,16 @@ from .datas.payloads import TWILLIO_SMS_SENT, MAILGUN_STATUS_UPDATE
 from ..models import CommunicationStatus, Communication
 from .testutils import assert_response, get_proxy_headers
 from services.backends.zoomconnect import ZoomSMSBackend
-from services.backends.generators.zoomconnect import (
-    reply as mock_zoom_reply
+from services.backends.generators import (
+    zoomconnect,
+    email
 )
-from api.helpers import create_sms
+from api.helpers import (
+    create_sms,
+    create_email
+)
 from django.urls import reverse
+from django.core.mail import outbox
 
 import unittest
 
@@ -46,13 +51,36 @@ class IncomingReplyTestCase(TestCase):
     @responses.activate
     def test_incoming_zoom_reply(self):
 
-        data = mock_zoom_reply()
+        data = zoomconnect.mock_zoom_reply()
         url = reverse('incoming_message', args=('services.backends.zoomconnect.ZoomSMSBackend',))
         res = self.client.post(url, data)
 
         assert res.status_code == 200
         Communication.objects.count() == 2
         Communication.objects.last().backend_used == settings.DEFAULT_SHORT_MESSAGE_BACKEND
+
+
+class IncomingEmailReplyTestCase(TestCase):
+
+    def setUp(self):
+        self.comm = create_email(
+            channel = "test",
+            subject = "email subject",
+            message = "email message",
+            from_email = "tech@appointmentguru.co",
+            to_emails = ["joe@soap.com", "jane@soap.com"]
+        )
+
+        data = email.email_reply(self.comm.id)
+        backend = 'services.backends.email.EmailBackend'
+        url = reverse('incoming_message', args=(backend,))
+        self.result = self.client.post(url, data)
+
+    def test_is_ok(self):
+        assert self.result.status_code == 200
+
+    def test_handles_email_reply(self):
+        assert len(outbox) == 2
 
 
 class WebHookTestCase(TestCase):
