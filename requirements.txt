@@ -17,6 +17,7 @@ python-dateutil
 weasyprint
 redis 
 mistune
+jsonschema
 
 ipython
 ipdb

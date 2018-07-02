@@ -22,6 +22,72 @@ class CommunicationTestCase(TestCase):
         comm.save()
 
 
+example_schema = {
+  "$id": "http://example.com/example.json",
+  "type": "object",
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "first_name": {
+      "$id": "/properties/first_name",
+      "type": "string",
+      "title": "The First_name Schema ",
+      "default": "",
+      "examples": [
+        "Joe"
+      ]
+    },
+    "foo": {
+      "$id": "/properties/foo",
+      "type": "string",
+      "title": "The Foo Schema ",
+      "default": "",
+      "examples": [
+        "bar"
+      ]
+    }
+  },
+  "required": [
+    "first_name",
+    "foo"
+  ]
+}
+
+@override_settings(CELERY_ALWAYS_EAGER=True)
+class ModelValidatesTemplateTestCase(TestCase):
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(username='joe')
+
+        data = {
+            "owner": self.user,
+            "subject": "hi {{first_name}}",
+            "short_message": "This is a short message: {{foo}}",
+            "message": "This is a long message: {{foo}}",
+            "schema": example_schema
+        }
+        self.tmplt = CommunicationTemplate.objects.create(**data)
+
+        data = {
+            "template": self.tmplt,
+            "context": {"first_name": "Joe", "foo": "bar"}
+        }
+        self.comms = Communication.objects.create(**data)
+
+    def test_valid_context_validates(self):
+
+        is_valid = self.comms.validate_template_context()
+        assert is_valid == True
+
+    def test_marks_invalid_content_as_invalid(self):
+        self.comms.context = {
+            "invalid": "context"
+        }
+        is_valid = self.comms.validate_template_context()
+        assert is_valid == False
+
+
+
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelAppliesTemplateTestCase(TestCase):
 
@@ -33,7 +99,8 @@ class ModelAppliesTemplateTestCase(TestCase):
             "owner": self.user,
             "subject": "hi {{first_name}}",
             "short_message": "This is a short message: {{foo}}",
-            "message": "This is a long message: {{foo}}"
+            "message": "This is a long message: {{foo}}",
+            "schema": example_schema
         }
         self.tmplt = CommunicationTemplate.objects.create(**data)
 

@@ -9,7 +9,7 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from rest_framework import renderers
 
 from services.sms import SMS
-import mistune, importlib
+import mistune, importlib, jsonschema
 
 from django.template import Context
 from django.template import Template
@@ -42,7 +42,7 @@ class CommunicationTemplate(models.Model):
     subject = models.CharField(max_length=255, blank=True, null=True)
     short_message = models.CharField(max_length=144, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
-    schema = JSONField(blank=True, null=True)
+    schema = JSONField(blank=True, null=True, help_text='Build schemas at: https://jsonschema.net')
 
     template_base = models.CharField(max_length=255)
 
@@ -122,6 +122,16 @@ class Communication(models.Model):
         from .serializers import CommunicationDetailSerializer
         serialized = CommunicationDetailSerializer(self)
         return renderers.JSONRenderer().render(serialized.data).decode('utf-8')
+
+    def validate_template_context(self):
+        if self.template is not None and self.template:
+            try:
+                jsonschema.validate(self.context, self.template.schema)
+            except jsonschema.exceptions.ValidationError as err:
+                return (False, err.message)
+
+        return (True, None)
+
 
     def apply_template(self, with_save=True):
         '''given a CommunicationTemplate and context: generate subject, short_message and message'''
