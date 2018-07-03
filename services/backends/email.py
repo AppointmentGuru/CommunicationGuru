@@ -51,7 +51,7 @@ class EmailBackend:
                     comm.sender_email,
                     comm.recipient_emails,
                     tags=comm.tags)
-        message.metadata = comm.tags
+        # message.metadata = comm.tags (metadata is key/value)
 
         html = markdown2.markdown(comm.message)
 
