@@ -55,6 +55,7 @@ class CommunicationTemplate(models.Model):
     class Meta:
         unique_together = ('owner', 'slug',)
 
+
 class Communication(models.Model):
 
     def __str__(self):
