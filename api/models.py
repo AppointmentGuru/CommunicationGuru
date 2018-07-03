@@ -46,7 +46,7 @@ class CommunicationTemplate(models.Model):
     description = models.TextField(blank=True, null=True, help_text='A longer description of the purpose of this communication')
 
     subject = models.CharField(max_length=255, blank=True, null=True)
-    short_message = models.CharField(max_length=144, blank=True, null=True)
+    short_message = models.TextField(blank=True, null=True)
     message = models.TextField(blank=True, null=True)
     schema = JSONField(blank=True, null=True, help_text='Build schemas at: https://jsonschema.net')
 
@@ -94,7 +94,7 @@ class Communication(models.Model):
     template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
 
     subject = models.CharField(max_length=255, blank=True, null=True, db_index=True)
-    short_message = models.CharField(max_length=144, blank=True, null=True, help_text='Used for short messages')
+    short_message = models.TextField(blank=True, null=True, help_text='Used for short messages')
     message = models.TextField(blank=True, null=True, help_text='Used for emails')
 
     attached_urls = ArrayField(models.URLField(), default=[], blank=True, null=True, help_text='Urls will be converted to pdf and attached')
