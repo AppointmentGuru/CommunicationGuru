@@ -4,7 +4,7 @@ A backend for sending email with python AnyMail
 import uuid, markdown2
 from anymail.message import AnymailMessage
 from api.helpers import create_email
-from api.models import Communication
+from api.models import CommunicationStatus, Communication
 
 def get_id():
     return str(uuid.uuid4())
@@ -18,11 +18,20 @@ class EmailBackend:
     @classmethod
     def from_payload(cls, backend, data):
         id = data.get('messageId')
+        if id is None:
+            id = data.get('Message-Id')
+
         communication = Communication.objects.get(
                             backend_used=backend,
                             backend_message_id=id
                         )
         return cls(communication)
+
+    def __request(self, method, path):
+        key = settings.ANYMAIL.get('MAILGUN_API_KEY')
+        auth=('api', key)
+        url = '{}{}'.format(settings.MAILGUN_API_URL, path)
+        return getattr(requests, method)(url, data, auth=auth)
 
     def __save_result(self, message):
         status = message.anymail_status
@@ -57,8 +66,13 @@ class EmailBackend:
         self.__save_result(message)
         return message
 
-    def fetch(self, id, **kwargs):
-        pass
+    def fetch(self, domain, **kwargs):
+        '''
+        This doesn't seem to work :(
+        '''
+        id = self.communication.backend_message_id
+        path = '/v3/{}/messages/{}'.format(domain, id)
+        return self.__request('get', path)
 
     def handle_reply(self, data):
         sender    = data.get('sender')
@@ -66,6 +80,7 @@ class EmailBackend:
         subject   = data.get('subject', '')
 
         body_plain = data.get('body-plain', '')
+        body_html = data.get('body-html', '')
         body_without_quotes = data.get('stripped-text', '')
         # note: other MIME headers are also posted here...
 
@@ -84,4 +99,28 @@ class EmailBackend:
         )
 
     def receive_status(self, data):
-        pass
+
+        # normalize:
+        if isinstance(data, six.string_types):
+            data = json.loads(data)
+
+        status = CommunicationStatus()
+
+        message_id = data.get('Message-Id')
+        if message_id is None:
+            message_id = "<{}>".format(data.get('message-id'))
+            data = data.copy()
+            data['Message-Id'] = message_id
+
+        if message_id is not None:
+            try:
+                comm = Communication.objects.get(backend_message_id=message_id)
+                status.communication = comm
+            except Communication.DoesNotExist:
+                pass
+        status.status = data.get('event')
+        status.save()
+
+        status.raw_result = data
+        status.save()
+        return status

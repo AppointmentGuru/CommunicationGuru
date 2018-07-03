@@ -135,11 +135,6 @@ def backends_messages(request, transport):
         status_code = 403
     return JsonResponse(data, status=status_code)
 
-@csrf_exempt
-@decorators.api_view(['POST', 'GET'])
-@decorators.permission_classes((permissions.AllowAny, ))
-def incoming_email(request):
-    pass
 
 class CommunicationViewSet(MultiSerializerMixin, viewsets.ModelViewSet):
 

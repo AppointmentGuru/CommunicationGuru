@@ -40,12 +40,20 @@ class CommunicationTemplate(models.Model):
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    # meta infos:
+    name = models.CharField(max_length=255, blank=True, null=True, help_text='A friendly name describing what this template is for')
+    slug = models.SlugField(blank=True, null=True, help_text='A friendly lookup for this template')
+    description = models.TextField(blank=True, null=True, help_text='A longer description of the purpose of this communication')
+
     subject = models.CharField(max_length=255, blank=True, null=True)
     short_message = models.CharField(max_length=144, blank=True, null=True)
     message = models.TextField(blank=True, null=True)
     schema = JSONField(blank=True, null=True, help_text='Build schemas at: https://jsonschema.net')
 
-    template_base = models.CharField(max_length=255)
+    template_base = models.CharField(max_length=255, blank=True, null=True)
+
+    class Meta:
+        unique_together = ('owner', 'slug',)
 
 class Communication(models.Model):
 

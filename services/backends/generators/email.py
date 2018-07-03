@@ -1,9 +1,31 @@
 
 def email_reply(id="123"):
     return {
-        "message-id": id,
-        "sender": "joe@soap.com",
-        "recipient": "jane@soap.com",
-        "subject": "re: hello",
-        "body-plain": "reply email message"
+        "recipient": "joe@soap.com",
+        "sender": "jane@soap.com",
+        "subject": "this is a test",
+        "from": "Joe Soap <joe@soap.com>",
+        "X-Mailgun-Incoming": "Yes",
+        "X-Envelope-From": "<jane@soap.com>",
+        "Received": "by mail-ua0-f172.google.com with SMTP id j17-v6so559460uap.7        for <jane@soap.com>; Tue, 03 Jul 2018 00:06:14 -0700 (PDT)",
+        "Dkim-Signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=ACME-co.20150623.gappssmtp.com; s=20150623;        h=mime-version:from:date:message-id:subject:to;        bh=ZqH/I0qZ2pBu8Ewff2MvKREHVVJWz6aQgr9As/fqc6A=;        b=De9I+pXJQMRi0PVSpXil3p6+amKpmgNLADK3VEyBc9wBgaTnoa3BOqW26S+5oq57ka         PaHJSey4WICAr33JW3ZzcayjSZJ/YqjAKAzgJe3+eq3n24D87nIDHGW3geOrHFDwHzRa         rjbFZUWjdstjr+0Pt3ZtwOmU8080DPcYb1sEaVvoia40KspEhZrpre+Ng1BDMg4s8O6f         sHxFNQUwVadZKC3tGrGzc02nQOJYid4WTOCokPVwNApBPNCf+j8Unry6l/QrFtgogWuf         OeVUMJYe7p8bf2vTDv4mNNZ8isbucpAYD63YZNFLPcn5YS54TrRN33VfUTK3+oI4QDmG         tXpw==",
+        "X-Google-Dkim-Signature": "v=1; a=rsa-sha256; c=relaxed/relaxed;        d=1e100.net; s=20161025;        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;        bh=ZqH/I0qZ2pBu8Ewff2MvKREHVVJWz6aQgr9As/fqc6A=;        b=tv0Bae4MIH+xhJsZGeZ7HdTd7uOvPKK7X8EqapYRMEWN9qpBD70zoylNo0YdQAe5bA         ZK/mZ23CBGy18mdfzdNyWDnO05/XVHR8fsxihH4vpioGD+0AkB5wxJn9UtKTQeAdp2aY         OJz9CHWWMYhhrUJc3lHnTLbmVp4CNOs9SooUeYQs1ss+QG0dEg5RczZTfYZ1Sa0S4Wa+         k9evs1H2j5ckdLpcjdCHYGhroVrb0grdqm5LbPeLjO/pqZhh4m65FRqbNRH8iCizCGN4         M2mWV3RvtINqzFKQbtjeK+N8745FXBeJaQxo4qZRJlziNqdJEKCSLCr6ELQIguLJy7U4         j3pQ==",
+        "X-Gm-Message-State": "APt69E32ciD0MAyWXqyZ+dYaTB1u8EXbXrth8DOWAB2hnn8z8EeiexaZ\tkTgkOyIkSSp1oXKzoQ5P8pkHtoeFCXaqE3QXLmL2HiVh",
+        "X-Google-Smtp-Source": "AAOMgpeQxJSB8Aj2ft/JmDd/j9kK/4WAffBqsXRMrOQd95ou/OfMDNcOrmpIRbhrlI3U7z+Ig+NegJ2cZCfpvhPE5K0=",
+        "X-Received": "by 2002:ab0:1e07:: with SMTP id m7-v6mr9782321uak.146.1530601573261; Tue, 03 Jul 2018 00:06:13 -0700 (PDT)",
+        "Mime-Version": "1.0",
+        "From": "Joe Soap <joe@soap.com>",
+        "Date": "Tue, 3 Jul 2018 09:06:23 +0200",
+        "Message-Id": "<CAArkiR+sFd=j0SxF64vCS7pB7WR5wtcsUKj_Wh3R4UKrjD_bKA@mail.gmail.com>",
+        "Subject": "this is a test",
+        "To": "\"jane@soap.com\" <jane@soap.com>",
+        "Content-Type": "multipart/alternative; boundary=\"000000000000113ba8057012f366\"",
+        "timestamp": "1530601575",
+        "token": "1234",
+        "signature": "4567",
+        "body-plain": "testing\r\n-- \r\nJoe Soap.\r\nFounder ACME\r\nInterested in learning more about ACME?\r\n\r\n",
+        "body-html": "<div dir=\"ltr\">testing</div>-- <br><div dir=\"ltr\" class=\"gmail_signature\" data-smartmail=\"gmail_signature\"><div dir=\"ltr\"><div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Joe Soap.&nbsp;</div></div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Founder ACME&nbsp;</div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Interested in learning more about ACME?&nbsp;</div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Book a demo : <a href=\"https://bookme.guru/guru/\">https://bookme.guru/guru/</a>&nbsp;</div></div></div>\r\n",
+        "stripped-html": "<div dir=\"ltr\">testing</div>-- <br><div dir=\"ltr\" class=\"gmail_signature\" data-smartmail=\"gmail_signature\"><div dir=\"ltr\"><div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Joe Soap.&nbsp;</div></div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Founder ACME&nbsp;</div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Interested in learning more about ACME?&nbsp;</div><div style=\"color:rgb(0,0,0);font-family:sans-serif;font-size:small\">Book a demo : <a href=\"https://bookme.guru/guru/\">https://bookme.guru/guru/</a>&nbsp;</div></div></div>\n",
+        "stripped-text": "testing",
+        "stripped-signature": "-- \r\nJoe Soap.\r\nFounder ACME\r\nInterested in learning more about ACME?\r\n"
     }

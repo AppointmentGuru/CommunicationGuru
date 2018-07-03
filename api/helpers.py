@@ -29,7 +29,7 @@ def create_email(channel, subject, message, from_email, to_emails=[], tags=[], b
     comm.sender_email = from_email
     comm.recipient_emails = to_emails
     comm.save()
-    comm.send()
+    # comm.send()
     return comm
 
 def create_in_app_communication(channel, message, subject, tags=[], backend = None):
@@ -43,7 +43,7 @@ def create_in_app_communication(channel, message, subject, tags=[], backend = No
     comm.short_message = message
     comm.subject = subject
     comm.save()
-    comm.send()
+    # comm.send()
 
     return comm
 
@@ -61,7 +61,7 @@ def create_short_message(channel, message, backend=None, tags = [], **kwargs):
     comm.recipient_phone_number = kwargs.get('recipient_phone_number')
 
     comm.save()
-    comm.send()
+    # comm.send()
 
     return comm
 
@@ -77,13 +77,9 @@ def create_sms(channel, message, to, tags=[], backend=None):
     comm.recipient_phone_number = to
     comm.tags = tags
     comm.save()
-    comm.send()
+    # comm.send()
 
     return comm
-
-def send():
-    '''Will send any kind of message'''
-    pass
 
 def msg(message, number=None, channel=None, owner=None, transports=['sms']):
     '''Send a short message (e.g.: sms, chat, notification etc
