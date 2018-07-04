@@ -1,7 +1,8 @@
 '''
 A backend for sending email with python AnyMail
 '''
-import uuid, markdown2
+import uuid, markdown2, json, six
+from weasyprint import HTML
 from anymail.message import AnymailMessage
 from api.helpers import create_email
 from api.models import CommunicationStatus, Communication

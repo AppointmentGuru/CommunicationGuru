@@ -153,8 +153,8 @@ class Communication(models.Model):
                 template = Template(message)
                 context = Context(self.context)
                 rendered = template.render(context)
-                # apply markdown:
-                if field != 'subject':
+                # apply markdown (only to long message)
+                if field == 'message':
                     rendered = mistune.markdown(rendered)
                 setattr(self, field, rendered)
             if with_save:
