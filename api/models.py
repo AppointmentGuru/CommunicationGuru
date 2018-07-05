@@ -36,7 +36,7 @@ TRANSPORTS = [
 class CommunicationTemplate(models.Model):
 
     def __str__(self):
-        return self.subject
+        return self.name
 
     owner = models.CharField(max_length=42, blank=True, null=True)
     slug = models.SlugField(blank=True, null=True, help_text='A friendly lookup for this template')
@@ -64,6 +64,8 @@ class Communication(models.Model):
     reply_to = models.ForeignKey('Communication', blank=True, null=True)
     # isOwner
     owner = models.CharField(max_length=100, blank=True, null=True)
+    template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
+    template_slug = models.SlugField(blank=True, null=True, help_text='A lookup on communicationtemplate')
     # appointment:123 client:345 user:
     # communicatoin/appointment/:id
     # tags = ArrayField
@@ -91,7 +93,6 @@ class Communication(models.Model):
     recipient_id = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     recipient_emails = ArrayField(models.EmailField(blank=True, null=True), blank=True, null=True, db_index=True)
     recipient_phone_number = PhoneNumberField(blank=True, null=True, db_index=True)
-    template = models.ForeignKey(CommunicationTemplate, blank=True, null=True, default=None)
 
     subject = models.CharField(max_length=255, blank=True, null=True, db_index=True)
     short_message = models.TextField(blank=True, null=True, help_text='Used for short messages')
@@ -146,10 +147,26 @@ class Communication(models.Model):
     def apply_template(self, with_save=True):
         '''given a CommunicationTemplate and context: generate subject, short_message and message'''
 
+        template_to_apply = None
         if self.template is not None:
+            template_to_apply = self.template
+
+        if self.template_slug is not None:
+            try:
+                template_to_apply = CommunicationTemplate.objects.get(
+                    owner = self.owner,
+                    slug = self.template_slug
+                )
+            except CommunicationTemplate.DoesNotExist:
+                template_to_apply = CommunicationTemplate.objects.get(
+                    owner = 0,
+                    slug = self.template_slug
+                )
+
+        if template_to_apply:
             fields = ['subject', 'short_message', 'message']
             for field in fields:
-                message = getattr(self.template, field, '')
+                message = getattr(template_to_apply, field, '')
                 template = Template(message)
                 context = Context(self.context)
                 rendered = template.render(context)

@@ -11,7 +11,11 @@ from ..helpers import (
     create_sms,
     create_email
 )
-import json
+from .testutils import (
+    create_mock_communication_template,
+    create_templated_communication
+)
+import json, responses
 
 class CommunicationTestCase(TestCase):
 
@@ -94,12 +98,14 @@ class ModelValidatesTemplateTestCase(TestCase):
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class ModelAppliesTemplateTestCase(TestCase):
 
+    @responses.activate
     def setUp(self):
 
         self.user = get_user_model().objects.create_user(username='joe')
 
         data = {
             "owner": self.user,
+            "owner": 1,
             "subject": "hi {{first_name}}",
             "short_message": "This is a short message: {{foo}}",
             "message": "This is a long message: {{foo}}",
@@ -118,8 +124,8 @@ class ModelAppliesTemplateTestCase(TestCase):
         assert self.comms.subject == 'hi Joe'
 
     def test_it_templates_short_message(self):
-        expected_message = '<p>This is a short message: bar</p>'
-        self.assertHTMLEqual(self.comms.short_message, expected_message)
+        expected_message = 'This is a short message: bar'
+        self.assertEqual(self.comms.short_message, expected_message)
         # assert self.comms.short_message == expected_message,\
         #     'Expected: {}. Got: {}'.format(expected_message, self.comms.short_message)
 
@@ -133,6 +139,22 @@ class ModelAppliesTemplateTestCase(TestCase):
         res = self.comms.as_json_string
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
+
+    @responses.activate
+    def test_custom_template(self):
+        slug = 'TEST_TEST'
+        owner_id = 2
+        context = {"foo": "bar"}
+        custom_template = create_mock_communication_template(owner_id=owner_id, slug=slug)
+        custom_template.subject = "overridden subject"
+        custom_template.short_message = "overridden short_message"
+        custom_template.message = "overridden message"
+        custom_template.save()
+        comm = create_templated_communication(slug, owner_id)
+
+        comm.subject = 'overridden subject'
+        comm.short_message = 'overridden short_message'
+        comm.message = 'overridden message'
 
 class ModelSendTestCase(TestCase):
 
