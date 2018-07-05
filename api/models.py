@@ -38,11 +38,11 @@ class CommunicationTemplate(models.Model):
     def __str__(self):
         return self.subject
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.CharField(max_length=42, blank=True, null=True)
+    slug = models.SlugField(blank=True, null=True, help_text='A friendly lookup for this template')
 
     # meta infos:
     name = models.CharField(max_length=255, blank=True, null=True, help_text='A friendly name describing what this template is for')
-    slug = models.SlugField(blank=True, null=True, help_text='A friendly lookup for this template')
     description = models.TextField(blank=True, null=True, help_text='A longer description of the purpose of this communication')
 
     subject = models.CharField(max_length=255, blank=True, null=True)
@@ -52,8 +52,8 @@ class CommunicationTemplate(models.Model):
 
     template_base = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        unique_together = ('owner', 'slug',)
+    # class Meta:
+    #     unique_together = ('owner', 'slug',)
 
 
 class Communication(models.Model):
