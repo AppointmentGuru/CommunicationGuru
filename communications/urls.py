@@ -16,12 +16,19 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from api import api
+from taskengine.api import router as task_router
+
+# let DRF handle errors
+handler500 = 'rest_framework.exceptions.server_error'
+handler400 = 'rest_framework.exceptions.bad_request'
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^incoming/slack/$', api.slack_webhook, name='slack_webhook'),
+    url(r'^pdf-it/$', api.download_pdf, name='download_pdf'),
     url(r'^incoming/reply/(?P<backend>[\w.@+-]+)/$', api.incoming_message, name='incoming_message'),
     url(r'^messages/backends/(?P<transport>[\w-]+)/$', api.backends_messages, name='backend_messages'),
     url(r'^$', api.health, name='health'),
     url(r'^', include(api.router.urls)),
+    url(r'^', include(task_router.urls)),
 ]

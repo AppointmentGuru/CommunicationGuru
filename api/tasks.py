@@ -1,3 +1,6 @@
+'''
+This file is deprecated. See `api.helpers`
+'''
 from django.conf import settings
 from services.sms import SMS
 from services.email import Email

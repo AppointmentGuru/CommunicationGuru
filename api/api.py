@@ -5,13 +5,14 @@ from rest_framework import \
     routers,\
     viewsets,\
     filters
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, FileResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from slackclient import SlackClient
 
 from services.email import Email
 from services.sms import SMS
+from weasyprint import HTML
 
 from .models import Communication
 from .mixins import MultiSerializerMixin
@@ -56,6 +57,19 @@ def health(request):
 
 
 @csrf_exempt
+@decorators.api_view(['GET', 'POST'])
+@decorators.permission_classes((permissions.AllowAny, ))
+def download_pdf(request):
+    '''
+    turn a url into a pdf and pass through to browser as download
+    '''
+    url = request.GET.get('url') or request.POST.get('url')
+    if url:
+        pdf = HTML(url).write_pdf()
+        return HttpResponse(pdf, content_type='application/pdf')
+    return HttpResponse("No url received")
+
+@csrf_exempt
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def incoming_message(request, backend):
@@ -71,7 +85,12 @@ def incoming_message(request, backend):
 @decorators.api_view(['POST', 'GET'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def status_update(request):
-    pass
+    module, klass = get_backend_class(backend)
+    be_class = getattr(module, klass)
+    data = request.POST
+    be = be_class.from_payload(backend, data)
+    be.handle_reply(data)
+    return HttpResponse('ok')
 
 
 @csrf_exempt

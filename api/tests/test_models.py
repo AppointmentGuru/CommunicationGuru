@@ -199,7 +199,6 @@ class CustomTemplateTestCase(TestCase):
         self.assertHTMLEqual('<p>This is a long message: bar</p>', comm.message)
 
 
-
 class ModelSendTestCase(TestCase):
 
     def test_send_inapp_notification(self):

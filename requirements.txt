@@ -15,10 +15,11 @@ kong_oauth==0.1
 django-phonenumber-field
 python-dateutil
 weasyprint
-redis 
+redis
 mistune
 jsonschema
 markdown2
+taskengine==0.0.2
 
 ipython
 ipdb

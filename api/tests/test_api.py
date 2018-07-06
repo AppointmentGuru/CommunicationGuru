@@ -148,6 +148,12 @@ class IncomingTwillioSMSWebHookTestCase(TestCase):
 #         url = '{}?fieldData=foo'.format(url)
 #         response = self.client.get(url, **get_proxy_headers("1"))
 
+class DownloadPDFTestCase(TestCase):
+
+    def test_download_pdf(self):
+        url = reverse('download_pdf')
+        result = self.client.post(url)
+        assert assert_response(result)
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class CreateEmailCommunicationTestCase(TestCase):
