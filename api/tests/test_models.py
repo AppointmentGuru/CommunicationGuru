@@ -83,14 +83,14 @@ class ModelValidatesTemplateTestCase(TestCase):
 
     def test_valid_context_validates(self):
 
-        is_valid = self.comms.validate_template_context()
+        is_valid, errors = self.comms.validate_template_context()
         assert is_valid == True
 
     def test_marks_invalid_content_as_invalid(self):
         self.comms.context = {
             "invalid": "context"
         }
-        is_valid = self.comms.validate_template_context()
+        is_valid, errors = self.comms.validate_template_context()
         assert is_valid == False
 
 
@@ -140,21 +140,65 @@ class ModelAppliesTemplateTestCase(TestCase):
         assert isinstance(res, str)
         json.loads(res) # verify it's valid json
 
+class CustomTemplateTestCase(TestCase):
+
+    def __create_communication(self, owner_id, template = None, slug = None):
+
+        data = {
+            "owner": owner_id,
+            "context": {
+                "first_name": "Joe",
+                "foo": "bar"
+            }
+        }
+        if template is not None:
+            data.update({"template": template})
+
+        if slug is not None:
+            data.update({"template_slug": slug})
+
+        return Communication.objects.create(**data)
+
+
     @responses.activate
-    def test_custom_template(self):
-        slug = 'TEST_TEST'
+    def setUp(self):
+        self.slug = 'TEST_TEST'
+        data = {
+            "owner": 0,
+            "subject": "hi {{first_name}}",
+            "short_message": "This is a short message: {{foo}}",
+            "message": "This is a long message: {{foo}}",
+            "slug": self.slug,
+            "schema": example_schema,
+        }
+        self.base_template = CommunicationTemplate.objects.create(**data)
+
+    @responses.activate
+    def test_custom_template_overrides_default(self):
         owner_id = 2
         context = {"foo": "bar"}
-        custom_template = create_mock_communication_template(owner_id=owner_id, slug=slug)
-        custom_template.subject = "overridden subject"
-        custom_template.short_message = "overridden short_message"
-        custom_template.message = "overridden message"
+        custom_template = create_mock_communication_template(owner_id=owner_id, slug=self.slug)
+        custom_template.subject = "overridden subject {{foo}}"
+        custom_template.short_message = "overridden short_message {{foo}}"
+        custom_template.message = "overridden message {{foo}}"
         custom_template.save()
-        comm = create_templated_communication(slug, owner_id)
+        comm = create_templated_communication(self.slug, owner_id)
 
-        comm.subject = 'overridden subject'
-        comm.short_message = 'overridden short_message'
-        comm.message = 'overridden message'
+        comm.refresh_from_db()
+        assert comm.subject == 'overridden subject bar'
+        assert comm.short_message == 'overridden short_message bar'
+        self.assertHTMLEqual('<p>overridden message bar</p>', comm.message)
+
+    def test_send_to_default_if_no_custom_template(self):
+        owner_id = 2
+        comm = self.__create_communication(owner_id, slug=self.slug)
+
+        comm.refresh_from_db()
+        assert comm.subject == 'hi Joe', 'Expected \'hi Joe\'. Got: {}'.format(comm.subject)
+        assert comm.short_message == 'This is a short message: bar'
+        self.assertHTMLEqual('<p>This is a long message: bar</p>', comm.message)
+
+
 
 class ModelSendTestCase(TestCase):
 
@@ -191,7 +235,11 @@ class EmailTestCase(TestCase):
         )
 
     def test_sends_email(self):
-        assert len(outbox) == 1
+        # oddly you seem to need to import this so that it updates
+        from django.core.mail import outbox
+        num_messages = len(outbox)
+        assert num_messages == 1, \
+            'Expected 1 message in the outbox, found: {}'.format(num_messages)
 
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
