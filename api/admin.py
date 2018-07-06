@@ -14,10 +14,12 @@ class CommunicationAdmin(admin.ModelAdmin):
     inlines = [CommunicationStatusInline]
 
 class CommunicationStatusAdmin(admin.ModelAdmin):
-    list_display = ('communication', 'status', 'created_date')
+    list_display = ('communication', 'status', 'created_date',)
+    list_filter = ('status',)
 
 class CommunicationTemplateAdmin(admin.ModelAdmin):
-    list_filter = ('owner','name', 'slug')
+    list_display = ('owner', 'name', 'slug',)
+    list_filter = ('owner', 'slug',)
 
 
 admin.site.register(Communication, CommunicationAdmin)
