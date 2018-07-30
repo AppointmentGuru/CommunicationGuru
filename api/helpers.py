@@ -4,6 +4,7 @@ Helpers. For getting stuff done
 from .models import Communication
 import importlib
 from django.conf import settings
+from django.utils import timezone
 
 def get_backend_class(method_string):
     parts = method_string.split('.') # qualified method: e.g.: api.tasks.ping
@@ -32,8 +33,7 @@ def create_email(channel, subject, message, from_email, to_emails=[], tags=[], b
     # comm.send()
     return comm
 
-def create_in_app_communication(channel, message, subject, tags=[], backend = None):
-
+def create_in_app_communication(channel, message, subject, tags=[], backend = None, send_after = None):
     if backend is None:
         backend = settings.DEFAULT_IN_APP_BACKEND
 
@@ -42,6 +42,8 @@ def create_in_app_communication(channel, message, subject, tags=[], backend = No
     comm.backends = [backend]
     comm.short_message = message
     comm.subject = subject
+    if send_after is not None:
+        comm.send_date = send_after
     comm.save()
     # comm.send()
 

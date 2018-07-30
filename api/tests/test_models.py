@@ -199,11 +199,30 @@ class CustomTemplateTestCase(TestCase):
         self.assertHTMLEqual('<p>This is a long message: bar</p>', comm.message)
 
 
-class ModelSendTestCase(TestCase):
+class ModelSendInAppTestCase(TestCase):
 
+    @responses.activate
     def test_send_inapp_notification(self):
+        success_response = {'id': '1234', 'recipients': 2}
+        responses.add(
+            responses.POST,
+            'https://onesignal.com/api/v1/notifications',
+            json=success_response,
+            status=201
+        )
         backend = 'services.backends.onesignal.OneSignalBackend'
-        res = create_in_app_communication("test", "this is a test", "Test subject", backend=backend)
+        res = create_in_app_communication(
+            "practitioner.1", 
+            "this is a test", 
+            "Test subject", 
+            backend=backend
+        )
+        
+        request_body = json.loads(responses.calls[0].request.body)        
+        filters = request_body.get('filters')[0]
+        assert filters.get('key') == 'practitioner.1'
+        assert filters.get('relation') == 'exists'
+        
 
 
 class ZoomConnectCommunicationTestCase(TestCase):

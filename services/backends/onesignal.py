@@ -53,10 +53,19 @@ class OneSignalBackend:
             "contents": {
                 "en": self.communication.short_message
             },
+            "headings": {
+                "en": self.communication.subject 
+            },
             "filters": [
-                get_filter("tag", "practitioner.1", "=", "general")
+                {
+                    "field": "tag", 
+                    "key": self.communication.channel, 
+                    "relation": "exists"
+                }
+                # get_filter("tag", "practitioner.1", "=", "general")
                 # get_filter("tag", "channel", "=", self.communication.channel)
-            ]
+            ],
+            "send_after": self.communication.send_date.isoformat()
         }
         url = "{}/notifications".format(self.base_url)
         result = requests.post(url, json=payload, headers=self.headers)
