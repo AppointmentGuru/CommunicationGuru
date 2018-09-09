@@ -14,7 +14,7 @@ from django.conf import settings  # noqa
 #     os.environ.get('RABBITMQ_DEFAULT_HOST')
 # )
 BROKER_URL = 'redis://redis:6379/0'
-app = Celery('communications', broker=BROKER_URL)
+app = Celery('unibox', broker=BROKER_URL)
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
