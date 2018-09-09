@@ -51,7 +51,7 @@ class IncomingReplyTestCase(TestCase):
     @responses.activate
     def test_incoming_zoom_reply(self):
 
-        data = zoomconnect.mock_zoom_reply()
+        data = zoomconnect.reply()
         url = reverse('incoming_message', args=('services.backends.zoomconnect.ZoomSMSBackend',))
         res = self.client.post(url, data)
 
@@ -153,7 +153,7 @@ class DownloadPDFTestCase(TestCase):
     def test_download_pdf(self):
         url = reverse('download_pdf')
         result = self.client.post(url)
-        assert assert_response(result)
+        self.assertEqual(result.status_code, 200)
 
 @override_settings(CELERY_ALWAYS_EAGER=True)
 class CreateEmailCommunicationTestCase(TestCase):

@@ -5,6 +5,7 @@ from .models import Communication
 import importlib
 from django.conf import settings
 from django.utils import timezone
+from celery import shared_task
 
 def get_backend_class(method_string):
     parts = method_string.split('.') # qualified method: e.g.: api.tasks.ping
@@ -101,3 +102,6 @@ def msg(message, number=None, channel=None, owner=None, transports=['sms']):
         data['preferred_transport'] = transport
         Communication.objects.create(**data)
 
+@shared_task
+def send_communiction(instance):
+    instance.send()

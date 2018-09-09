@@ -1,6 +1,7 @@
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from .models import Communication
+from .helpers import send_communiction
 
 @receiver(pre_save, sender=Communication, dispatch_uid="api.communication.communication_pre_save")
 def communication_pre_save(sender, instance, **kwargs):
@@ -10,4 +11,5 @@ def communication_pre_save(sender, instance, **kwargs):
 def communication_post_save(sender, instance, created, **kwargs):
     if created:
         # only send on creation (otherwise it will loop)
-        return instance.send()
+        send_communiction.delay(instance)
+        # return instance.send()
