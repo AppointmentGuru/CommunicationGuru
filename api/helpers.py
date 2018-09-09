@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from celery import shared_task
+from django_nosql.signals import (sync_readonly_db, SYNC_TYPE)
 
 import importlib, json
 
@@ -117,3 +118,14 @@ def save_incoming(request, backend, type='unknown'):
     incoming.raw = request.data
     incoming.save()
     return incoming
+
+@shared_task
+def firebase_sync(instance, created):
+  sync_readonly_db(instance, SYNC_TYPE.UPDATE, created)
+
+@shared_task
+def firebase_sync_remove(instance):
+  sync_readonly_db(instance, SYNC_TYPE.DELETE, False)
+
+
+

@@ -89,3 +89,8 @@ TASKENGINE_API_KEY = 'D94AE07E-EEC1-4D7C-AC48-91E135779516'
 DEFAULT_EMAIL_MESSAGE_BACKEND = 'services.backends.email.EmailBackend'
 DEFAULT_SHORT_MESSAGE_BACKEND = os.environ.get('DEFAULT_SHORT_MESSAGE_BACKEND')
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
+
+NOSQL_BACKENDS = ['firestore']
+#  FireStore settings
+FIRESTORE_CREDENTIALS_FILE = '/path/to/credentials.json'
+

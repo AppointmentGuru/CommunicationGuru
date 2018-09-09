@@ -102,3 +102,4 @@ ENV/
 *.env
 *.DS_Store
 docker-compose.unibox.yml
+firestore-credentials.json

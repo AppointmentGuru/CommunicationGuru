@@ -12,7 +12,12 @@ slackclient==1.0.6
 django-anymail==0.10
 django-storages==1.6.3
 boto==2.48.0
+
 kong_oauth==0.1
+django_nosql==0.0.2
+firebase-admin==2.13.0
+google-cloud-firestore
+pubnub
 django-phonenumber-field
 python-dateutil
 weasyprint

@@ -212,19 +212,22 @@ class ModelSendInAppTestCase(TestCase):
         )
         backend = 'services.backends.onesignal.OneSignalBackend'
         res = create_in_app_communication(
-            "practitioner.1", 
-            "this is a test", 
-            "Test subject", 
+            "practitioner.1",
+            "this is a test",
+            "Test subject",
             backend=backend
         )
-        
-        request_body = json.loads(responses.calls[0].request.body)        
+
+        request_body = json.loads(responses.calls[0].request.body)
         filters = request_body.get('filters')[0]
         assert filters.get('key') == 'practitioner.1'
         assert filters.get('relation') == 'exists'
-        
 
 
+@override_settings(DEFAULT_SHORT_MESSAGE_BACKEND='services.backends.mockbackend.MockShortMessageBackend')
+@override_settings(SMS_BACKEND='services.backends.zoomconnect.ZoomSMSBackend')
+@override_settings(ZOOM_EMAIL='joe@soap.com')
+@override_settings(ZOOM_API_TOKEN='1234')
 class ZoomConnectCommunicationTestCase(TestCase):
 
     def test_send_sms(self):
