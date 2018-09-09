@@ -14,7 +14,7 @@ from services.email import Email
 from services.sms import SMS
 from weasyprint import HTML
 
-from .models import Communication
+from .models import Communication, IncomingInformation
 from .mixins import MultiSerializerMixin
 from .filters import ObjectOverlapFilterBackend, IsOwnerFilterBackend
 from .diagnostics import (
@@ -28,7 +28,8 @@ from .serializers import (
     CommunicationDetailSerializer
 )
 from .helpers import (
-    get_backend_class
+    get_backend_class,
+    save_incoming
 )
 
 from kong_oauth.drf_authbackends import KongDownstreamAuthHeadersAuthentication
@@ -73,25 +74,27 @@ def download_pdf(request):
 @decorators.api_view(['POST'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def incoming_message(request, backend):
+    save_incoming(request, backend, type='reply')
+
     module, klass = get_backend_class(backend)
     be_class = getattr(module, klass)
-    data = request.POST
+    data = request.data
     be = be_class.from_payload(backend, data)
     be.handle_reply(data)
     return HttpResponse('ok')
-
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])
 @decorators.permission_classes((permissions.AllowAny, ))
 def status_update(request):
+    # save_incoming(request, backend, type='status')
+
     module, klass = get_backend_class(backend)
     be_class = getattr(module, klass)
     data = request.POST
     be = be_class.from_payload(backend, data)
     be.handle_reply(data)
     return HttpResponse('ok')
-
 
 @csrf_exempt
 @decorators.api_view(['POST', 'GET'])

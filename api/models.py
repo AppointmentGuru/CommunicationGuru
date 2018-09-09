@@ -32,6 +32,11 @@ TRANSPORTS = [
     ('notification', 'Push Notification'),
 ]
 
+class IncomingInformation(models.Model):
+
+    type = models.CharField(max_length=12, default='unknown')
+    backend = models.CharField(max_length=255, blank=True, null=True)
+    raw = JSONField(blank=True, null=True)
 
 class CommunicationTemplate(models.Model):
 

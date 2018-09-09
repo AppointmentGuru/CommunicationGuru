@@ -1,11 +1,14 @@
 '''
 Helpers. For getting stuff done
 '''
-from .models import Communication
-import importlib
+from .models import Communication, IncomingInformation
+
 from django.conf import settings
 from django.utils import timezone
+
 from celery import shared_task
+
+import importlib, json
 
 def get_backend_class(method_string):
     parts = method_string.split('.') # qualified method: e.g.: api.tasks.ping
@@ -81,7 +84,6 @@ def create_sms(channel, message, to, tags=[], backend=None):
     comm.tags = tags
     comm.save()
     # comm.send()
-
     return comm
 
 def msg(message, number=None, channel=None, owner=None, transports=['sms']):
@@ -103,5 +105,15 @@ def msg(message, number=None, channel=None, owner=None, transports=['sms']):
         Communication.objects.create(**data)
 
 @shared_task
-def send_communiction(instance):
-    instance.send()
+def send_communication(communication_id):
+    comm = Communication.objects.get(id=communication_id)
+    comm.send()
+
+@shared_task
+def save_incoming(request, backend, type='unknown'):
+    incoming = IncomingInformation()
+    incoming.backend = backend
+    incoming.type = type
+    incoming.raw = request.data
+    incoming.save()
+    return incoming

@@ -19,7 +19,7 @@ app = Celery('unibox', broker=BROKER_URL)
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
 app.config_from_object('django.conf:settings')
-app.conf.task_default_queue = 'communicationguru'
+app.conf.task_default_queue = 'unibox'
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.task(bind=True)
