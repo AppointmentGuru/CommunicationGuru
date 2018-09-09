@@ -18,6 +18,15 @@ class CommunicationStatusSerializer(serializers.ModelSerializer):
         model = CommunicationStatus
         fields = '__all__'
 
+class MinimalCommunicationSerializer(serializers.ModelSerializer):
+    owner = serializers.HiddenField(default=CurrentUserDefaultUserId())
+    class Meta:
+        model = Communication
+        fields = [
+            'owner', 'sender_email', 'channel', 'recipient_id', 'recipient_emails', 'recipient_phone_number',
+            'subject', 'short_message', 'message', 'attached_urls', 'created_date', 'last_sent_date'
+        ]
+
 # Serializers define the API representation.
 class CommunicationListSerializer(serializers.ModelSerializer):
     owner = serializers.HiddenField(default=CurrentUserDefaultUserId())

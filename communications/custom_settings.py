@@ -90,7 +90,11 @@ DEFAULT_EMAIL_MESSAGE_BACKEND = 'services.backends.email.EmailBackend'
 DEFAULT_SHORT_MESSAGE_BACKEND = os.environ.get('DEFAULT_SHORT_MESSAGE_BACKEND')
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"  # or sendgrid.SendGridBackend, or...
 
-NOSQL_BACKENDS = ['firestore']
+NOSQL_BACKENDS = os.environ.get('NOSQL_BACKENDS', '').split(',')
 #  FireStore settings
-FIRESTORE_CREDENTIALS_FILE = '/path/to/credentials.json'
+FIRESTORE_CREDENTIALS_FILE = os.environ.get(
+    'FIRESTORE_CREDENTIALS_FILE',
+    '/code/firestore-credentials.json'
+)
 
+DEBUG = os.environ.get('DEBUG') == 'True'

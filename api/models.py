@@ -63,6 +63,10 @@ class CommunicationTemplate(models.Model):
 
 class Communication(models.Model):
 
+    collection = 'communications'
+    serializer_path = 'api.serializers.MinimalCommunicationSerializer'
+    readonly_sync = True
+
     def __str__(self):
         return "{}: #{}".format(self.preferred_transport, self.backend_message_id)
 
@@ -256,4 +260,9 @@ class CommunicationStatus(models.Model):
     modified_date = models.DateTimeField(auto_now=True, db_index=True)
 
 
-from .signals import *
+from .signals import (
+    communication_pre_save,
+    communication_post_save,
+    sync_readonly_db,
+    sync_remove_readonly_db
+)
